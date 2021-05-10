@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "poolz-back": "^1.0.0",
+    "poolz-benefit": "^1.0.1",
+    "poolz-locked-deal": "^1.0.0",
+    "poolz-whitelist": "^1.0.0"
+  },
+  "devDependencies": {
+    "chai": "^4.1.2",
+    "chai-as-promised": "^7.1.1",
+    "chai-bignumber": "^2.0.2",
+    "coveralls": "^3.1.0",
+    "node-fetch": ">=2.6.1",
+    "openzeppelin-solidity": "^3.4.1",
+    "sol-merger": "^3.1.0",
+    "solidity-coverage": "^0.7.11",
+    "truffle-plugin-verify": "^0.5.7"
+  }
+}
