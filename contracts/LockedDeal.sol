@@ -6,3 +6,11 @@ import 'poolz-locked-deal/contracts/LockedDeal.sol';
 contract PoolzLockedDeal is LockedDeal{
     
 }
+
+// pragma solidity ^0.6.0;
+
+// import 'poolz-back/contracts/ThePoolz.sol';
+
+// contract PoolzBack is ThePoolz{
+    
+// }
