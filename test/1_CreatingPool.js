@@ -10,9 +10,10 @@ const amount = new BN('3000000') //3 tokens for sale
 const invest = web3.utils.toWei('1', 'ether') //1eth
 const zero_address = "0x0000000000000000000000000000000000000000"
 
+const { createNewWhiteList } = require('./helper')
+
 contract('Integration between Poolz-Back and WhiteList for Creating New Pool', accounts => {
     let poolzBack, testToken, whiteList, mainCoin, firstAddress = accounts[0]
-    let whiteListCost = web3.utils.toWei('0.01', 'ether')
     let tokenWhiteListId, mainCoinWhiteListId
 
     before( async () => {
@@ -23,25 +24,14 @@ contract('Integration between Poolz-Back and WhiteList for Creating New Pool', a
     })
 
     describe('WhiteList Setup', () => {
-        const createNewWhiteList = async (address) => {
-            const now = Date.now() / 1000 // current timestamp in seconds
-            const timestamp = Number(now.toFixed()) + 3600 // timestamp one hour from now
-            const value = whiteListCost
-            const result = await whiteList.CreateManualWhiteList(timestamp, address, {from: firstAddress, value: value})
-            const logs = result.logs[0].args
-            let id = logs._WhiteListCount.toNumber()
-            assert.equal(logs._creator, firstAddress)
-            assert.equal(logs._contract, address)
-            assert.equal(logs._changeUntil, timestamp)
-            return id
-        }
-
         it('Creating new WhiteList for Main Coin', async () => {
-            mainCoinWhiteListId = await createNewWhiteList(poolzBack.address)
+            const tx = await createNewWhiteList(whiteList, poolzBack.address, firstAddress)
+            mainCoinWhiteListId = tx.logs[0].args._WhiteListCount.toNumber()
         })
 
         it('Creating new WhiteList for Token', async () => {
-            tokenWhiteListId = await createNewWhiteList(poolzBack.address)
+            const tx = await createNewWhiteList(whiteList, poolzBack.address, firstAddress)
+            tokenWhiteListId = tx.logs[0].args._WhiteListCount.toNumber()
         })
 
         it('should add Main Coin Address to whiteList ID 1', async () => {
