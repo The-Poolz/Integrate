@@ -5,9 +5,9 @@ const { assert } = require('chai')
 const truffleAssert = require('truffle-assertions')
 var BN = web3.utils.BN
 
-const pozRate = new BN('100000') // with decimal21 (shifter) 1 eth^18 = 1 token^6
-const publicRate = new BN('50000') // with decimal21 (shifter) 1 eth^18 = 1 token^6
-const amount = new BN('300000') //3 tokens for sale
+const pozRate = new BN('1000000000') // with decimal21 (shifter) 1 eth^18 = 1 token^6
+const publicRate = new BN('500000000') // with decimal21 (shifter) 1 eth^18 = 1 token^6
+const amount = new BN('3000000') //3 tokens for sale
 const invest = web3.utils.toWei('1', 'ether') //1eth
 const zero_address = "0x0000000000000000000000000000000000000000"
 
@@ -110,13 +110,14 @@ contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) 
             const result = await poolzBack.GetPoolExtraData(poolId)
             assert.equal(investorWhiteListId ,result[1].toString())
             const status = await poolzBack.GetPoolStatus(poolId)
-            console.log(status.toString())
         })
     })
 
     describe('Investing in Pool', () => {
         it('should invest', async () => {
             await poolzBack.InvestETH(poolId, {from: investors[0], value: allowances[0]})
+            const bal = await testToken.balanceOf(investors[0])
+            
         })
     })
 })

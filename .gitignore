@@ -5,6 +5,9 @@
 # depedencies
 node_modules
 
+# contacts to be built
+contracts/PoolzBack.sol
+
 # testing
 coverage
 coverage.json
