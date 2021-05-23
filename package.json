@@ -2,7 +2,7 @@
   "dependencies": {
     "poolz-back": "^1.0.0",
     "poolz-benefit": "^1.0.1",
-    "poolz-locked-deal": "^1.0.0",
+    "poolz-locked-deal": "^1.0.1",
     "poolz-whitelist": "^1.0.0"
   },
   "devDependencies": {

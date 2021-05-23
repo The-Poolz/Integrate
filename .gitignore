@@ -7,6 +7,14 @@ node_modules
 
 # contacts to be built
 contracts/PoolzBack.sol
+contracts/WhiteList.sol
+contracts/LockedDeal.sol
+contracts/benefit.sol
+
+test/1_PoolzBack
+test/2_WhiteList
+test/3_LockedDeal
+test/4_Benefit
 
 # testing
 coverage
