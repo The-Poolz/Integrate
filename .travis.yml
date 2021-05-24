@@ -20,6 +20,7 @@ matrix:
 install:
   - bash ./bin/travis-install.sh
 script:
+  - bash ./bin/build.sh
   - bash ./bin/test.sh
 after_script:
  - bash <(curl -s https://codecov.io/bash)

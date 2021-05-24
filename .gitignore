@@ -9,7 +9,7 @@ node_modules
 contracts/PoolzBack.sol
 contracts/WhiteList.sol
 contracts/LockedDeal.sol
-contracts/benefit.sol
+contracts/Benefit.sol
 
 test/1_PoolzBack
 test/2_WhiteList
