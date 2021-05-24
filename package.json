@@ -3,7 +3,7 @@
     "poolz-back": "^1.0.0",
     "poolz-benefit": "^1.0.1",
     "poolz-locked-deal": "^1.0.2",
-    "poolz-whitelist": "^1.0.0"
+    "poolz-whitelist": "^1.0.1"
   },
   "devDependencies": {
     "chai": "^4.1.2",
