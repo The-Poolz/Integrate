@@ -6,10 +6,6 @@
 node_modules
 
 # contacts to be built
-contracts/PoolzBack.sol
-contracts/WhiteList.sol
-contracts/LockedDeal.sol
-contracts/Benefit.sol
 
 test/1_PoolzBack
 test/2_WhiteList
