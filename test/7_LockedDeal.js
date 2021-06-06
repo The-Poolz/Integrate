@@ -50,12 +50,13 @@ contract('Integration between PoolzBack and LockedDeal', accounts => {
     })
     describe('Investing', () => {
         const investor = accounts[9]
-        let investorId
+        let lockedDealId
         it('Investing in Locked Deal', async () => {
             const tx = await poolzBack.InvestETH(poolId, {from: investor, value: web3.utils.toWei('0.4')})
-            investorId = tx.logs[1].args[0].toString()
+            lockedDealId = tx.logs[2].args[2].toString()
+            const investorId = tx.logs[2].args[0].toString()
             const result = await poolzBack.GetInvestmentData(investorId)
-            assert.equal(investorId, result[5].toString())
+            assert.equal(investor, result[1].toString())
         })
         it('should withdraw investment at unlock time', async () => {
             const date = new Date()
@@ -63,7 +64,7 @@ contract('Integration between PoolzBack and LockedDeal', accounts => {
             const future = Math.floor(date.getTime() / 1000) + 60
             await timeMachine.advanceBlockAndSetTime(future)
             // await timeMachine.advanceTimeAndBlock();
-            const tx = await lockedDeal.WithdrawToken(investorId, {from: firstAddress})
+            const tx = await lockedDeal.WithdrawToken(lockedDealId, {from: firstAddress})
             const result = tx.logs[0].args[0].toString()
             const bal =  await testToken.balanceOf(investor)
             const now = Date.now()
