@@ -1,7 +1,7 @@
 {
   "dependencies": {
     "bignumber.js": "^9.0.1",
-    "poolz-back": "^1.0.6",
+    "poolz-back": "^1.0.7",
     "poolz-benefit": "^1.0.1",
     "poolz-locked-deal": "^1.0.2",
     "poolz-whitelist": "^1.0.1"
