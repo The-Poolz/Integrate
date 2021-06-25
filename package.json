@@ -3,7 +3,7 @@
     "bignumber.js": "^9.0.1",
     "poolz-back": "^1.0.10",
     "poolz-benefit": "^1.0.3",
-    "poolz-locked-deal": "^1.0.3",
+    "poolz-locked-deal": "^1.0.4",
     "poolz-whitelist": "^1.0.5"
   },
   "devDependencies": {
