@@ -4,7 +4,8 @@
     "poolz-back": "^1.0.10",
     "poolz-benefit": "^1.0.3",
     "poolz-locked-deal": "^1.0.4",
-    "poolz-whitelist": "^1.0.5"
+    "poolz-whitelist": "^1.0.5",
+    "poolz-hodlers-whitelist": "^1.0.1"
   },
   "devDependencies": {
     "@openzeppelin/test-helpers": "^0.5.11",
