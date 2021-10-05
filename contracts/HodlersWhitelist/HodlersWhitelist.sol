@@ -25,10 +25,10 @@ contract HodlersWhitelist is Manageable {
             _ChangeUntil,
             false
         );
-        uint256 temp = WhiteListCount;
+        MainWhitelistId = WhiteListCount;
         WhiteListCount++;
-        emit NewWhiteList(temp, msg.sender, _ChangeUntil);
-        return temp;
+        emit NewWhiteList(MainWhitelistId, msg.sender, _ChangeUntil);
+        return MainWhitelistId;
     }
 
     function ChangeCreator(uint256 _Id, address _NewCreator)
