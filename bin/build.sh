@@ -23,8 +23,8 @@ cp -a ./node_modules/poolz-back/test/General/. ./test/1_PoolzBack
 mkdir ./test/2_WhiteList
 cp -a ./node_modules/poolz-whitelist/test/. ./test/2_WhiteList
 
-mkdir ./test/3_LockedDeal
-cp -a ./node_modules/poolz-locked-deal/test/. ./test/3_LockedDeal
+mkdir ./test/0_LockedDeal
+cp -a ./node_modules/poolz-locked-deal/test/. ./test/0_LockedDeal
 
 mkdir ./test/4_Benefit
 cp -a ./node_modules/poolz-benefit/test/. ./test/4_Benefit

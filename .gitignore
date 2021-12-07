@@ -11,6 +11,7 @@ test/1_PoolzBack
 test/2_WhiteList
 test/3_LockedDeal
 test/4_Benefit
+test/0_LockedDeal
 
 # testing
 coverage
