@@ -7,11 +7,13 @@ node_modules
 
 # contacts to be built
 
-test/1_PoolzBack
-test/2_WhiteList
-test/3_LockedDeal
-test/4_Benefit
-test/0_LockedDeal
+test/01_PoolzBack
+test/02_WhiteList
+test/03_LockedDeal
+test/04_Benefit
+test/05_HodlersWhitelist
+test/06_EnvelopToken
+
 
 # testing
 coverage
