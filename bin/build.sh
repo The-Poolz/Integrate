@@ -36,4 +36,4 @@ mkdir ./test/06_EnvelopToken
 cp -a ./node_modules/poolz-envelop-token/test/. ./test/06_EnvelopToken
 
 #temporary fix for naming error of TestToken in Benefit tests
-sed -i 's/"TestToken"/"Token"/g' test/4_Benefit/test.js
+#sed -i 's/"TestToken"/"Token"/g' test/4_Benefit/test.js
