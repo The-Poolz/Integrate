@@ -12,6 +12,6 @@ install:
   - bash ./bin/travis-install.sh
 script:
   - bash ./bin/build.sh
-  - truffle run coverage
+  - truffle run coverage --network development
 after_script:
  - bash <(curl -s https://codecov.io/bash)
