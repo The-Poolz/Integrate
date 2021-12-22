@@ -8,5 +8,5 @@ set -e
 # truffle compile
 # truffle migrate --reset --network development
 # truffle test
-truffle run coverage
+truffle run coverage --network development
 kill -9 $(lsof -t -i:8545)
