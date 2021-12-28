@@ -16,6 +16,8 @@ cp -a ./node_modules/poolz-hodlers-whitelist/contracts/. ./contracts/HodlersWhit
 mkdir ./contracts/EnvelopToken
 cp -a ./node_modules/poolz-envelop-token/contracts/. ./contracts/EnvelopToken
 
+mkdir ./contracts/Uniswap-V2-Core
+cp -a ./node_modules/@uniswap/v2-core/contracts/. ./contracts/Uniswap-V2-Core
 
 mkdir ./test/01_PoolzBack
 cp -a ./node_modules/poolz-back/test/General/. ./test/01_PoolzBack
@@ -34,6 +36,9 @@ cp -a ./node_modules/poolz-hodlers-whitelist/test/. ./test/05_HodlersWhitelist
 
 mkdir ./test/06_EnvelopToken
 cp -a ./node_modules/poolz-envelop-token/test/. ./test/06_EnvelopToken
+
+mkdir ./test/00_Uniswap-V2-Core
+cp -a  ./node_modules/uniswap-v2-test/. ./test/00_Uniswap-V2-Core
 
 #temporary fix for naming error of TestToken in Benefit tests
 #sed -i 's/"TestToken"/"Token"/g' test/4_Benefit/test.js

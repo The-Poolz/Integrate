@@ -17,7 +17,9 @@
  * phrase from a file you've .gitignored so it doesn't accidentally become public.
  *
  */
-
+ require("ts-node").register({
+  files: true,
+})
 // const HDWalletProvider = require('@truffle/hdwallet-provider');
 // const infuraKey = "fj4jll3k.....";
 //
@@ -34,7 +36,7 @@ module.exports = {
    *
    * $ truffle test --network <network-name>
    */
-
+  contracts_build_directory: './test/build',
   networks: {
     // Useful for testing. The `development` name is special - truffle uses it by default
     // if it's defined here and no other network is specified at the command line.
@@ -46,7 +48,7 @@ module.exports = {
      host: "127.0.0.1",     // Localhost (default: none)
      port: 8545,            // Standard Ethereum port (default: none)
      network_id: "*",       // Any network (default: none)
-     gas: 6721974,
+     gas: 9999999,
      disableConfirmationListener: true
     },
     // Another network with more advanced options...
@@ -78,17 +80,17 @@ module.exports = {
   plugins: ["solidity-coverage", "truffle-plugin-verify"],
   // Set default mocha options here, use special reporters etc.
   mocha: {
-    // timeout: 100000
+     timeout: 100000
   },
 
   // Configure your compilers
   compilers: {
     solc: {
       settings: {
-        evmVersion: "byzantium",
-        optimizer: { enabled: true, runs: 200 },
+        evmVersion: "istanbul",
+        optimizer: { enabled: true, runs: 9999999 },
       },     
-      version: "^0.6.0",
+      version: "pragma",
       docker: false,
       parser: "solcjs",
     }
