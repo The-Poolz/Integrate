@@ -74,7 +74,6 @@ contract('Integration between PoolzBack and Benefit', accounts => {
 
     describe('Investing in Pool', () => {
         const investor = accounts[9]
-        let investorId
         it('Fail to invest when investor has no POZ', async () => {
             const date = new Date()
             date.setDate(date.getDate() + 1)   // add a day
