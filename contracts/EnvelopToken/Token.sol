@@ -13,36 +13,49 @@ import "poolz-helper/contracts/ILockedDeal.sol";
 contract POOLZSYNT is ERC20, ERC20Capped, ERC20Burnable, Manageable {
     event TokenActivated(address Owner, uint256 Amount);
 
-    constructor(string memory _name, string memory _symbol, uint _cap, uint8 _decimals, address _owner)
+    constructor(
+        string memory _name,
+        string memory _symbol,
+        uint _cap,
+        uint8 _decimals,
+        address _owner,
+        address _lockedDealAddress,
+        address _whitelistAddress,
+        uint256 _whitelistId
+    )
         public
         ERC20(_name, _symbol)
         ERC20Capped(_cap * 10**uint(_decimals))
     {
         require(_decimals <= 18, "Decimal more than 18");
         _setupDecimals(_decimals);
-        _mint(_owner, _cap * 10**uint(_decimals));
+        _mint(_owner, cap());
+        _SetLockedDealAddress(_lockedDealAddress);
+        _SetupWhitelist(_whitelistAddress, _whitelistId);
     }
 
     function _beforeTokenTransfer(address from, address to, uint256 amount)
         internal virtual override(ERC20Capped, ERC20)
     {
+        require(FinishTime <= now || _msgSender() == owner() || registerWhitelist(to, amount), "Invalid Transfer Time or To Address" );
+        //register here
         super._beforeTokenTransfer(from, to, amount); // Call parent hook
     }
 
     function SetLockingDetails(
         address _tokenAddress,
         uint64[] calldata _unlockTimes,
-        uint8[] calldata _ratios
+        uint8[] calldata _ratios,
+        uint256 _finishTime
     ) external onlyOwnerOrGov  {
-        _SetLockingDetails(_tokenAddress, cap(), _unlockTimes, _ratios);
+        _SetLockingDetails(_tokenAddress, cap(), _unlockTimes, _ratios, _finishTime);
     }
 
     function ActivateSynthetic() external {
         ActivateSynthetic(balanceOf(_msgSender()));
     }
 
-    function ActivateSynthetic(uint _amountToActivate) public {
-        require(totalUnlocks != 0, "Original Token not Ready");
+    function ActivateSynthetic(uint _amountToActivate) public tokenReady(true) {
         (uint amountToBurn, uint CreditableAmount, uint64[] memory unlockTimes, uint256[] memory unlockAmounts) = getActivationResult(_amountToActivate);
         TransferToken(OriginalTokenAddress, _msgSender(), CreditableAmount);
         if(SafeMath.sub(amountToBurn, CreditableAmount) > 0){
@@ -58,7 +71,9 @@ contract POOLZSYNT is ERC20, ERC20Capped, ERC20Burnable, Manageable {
         assert(amountToBurn == _amountToActivate);
     }
 
-    function getActivationResult(uint _amountToActivate) public view returns(uint, uint, uint64[] memory, uint256[] memory) {
+    function getActivationResult(uint _amountToActivate)
+        public view tokenReady(true) returns(uint, uint, uint64[] memory, uint256[] memory)
+    {
         uint TotalTokens;
         uint CreditableAmount; 
         uint64[] memory unlockTimes = new uint64[](totalUnlocks);
@@ -93,7 +108,6 @@ contract POOLZSYNT is ERC20, ERC20Capped, ERC20Burnable, Manageable {
             }
             TotalTokens = _amountToActivate;
         }
-        
         return(TotalTokens, CreditableAmount, unlockTimes, unlockAmounts);
     }
 }
