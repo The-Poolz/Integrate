@@ -21,7 +21,7 @@ contract('Integration between HodlersWhitelist and PoolzBack', accounts => {
     let hodlers = []
     let poolId
 
-    before( async () => {
+    before(async () => {
         poolzBack = await ThePoolz.deployed()
         hodlersWhitelist = await HodlersWhitelist.deployed()
         whiteList = await WhiteList.deployed()
@@ -33,13 +33,13 @@ contract('Integration between HodlersWhitelist and PoolzBack', accounts => {
         let poolWhiteListId
 
         it('should set address of HodlersWhitelist contract', async () => {
-            await poolzBack.SetBenefit_Address(hodlersWhitelist.address, {from: firstAddress})
+            await poolzBack.SetBenefit_Address(hodlersWhitelist.address, { from: firstAddress })
             const result = await poolzBack.Benefit_Address()
             assert.equal(result, hodlersWhitelist.address)
         })
 
         it('should set address of whiteList contract', async () => {
-            await poolzBack.SetWhiteList_Address(whiteList.address, {from: firstAddress})
+            await poolzBack.SetWhiteList_Address(whiteList.address, { from: firstAddress })
             const result = await poolzBack.WhiteList_Address()
             assert.equal(whiteList.address, result)
         })
@@ -50,13 +50,13 @@ contract('Integration between HodlersWhitelist and PoolzBack', accounts => {
         })
 
         it('should set POZ Timer to 50%', async () => {
-            await poolzBack.SetPozTimer(5000, {from: firstAddress})
+            await poolzBack.SetPozTimer(5000, { from: firstAddress })
             const result = await poolzBack.PozTimer()
             assert.equal(result.toNumber(), 5000)
         })
 
         it('should create new ETH Pool', async () => {
-            await testToken.approve(poolzBack.address, amount, {from: firstAddress})
+            await testToken.approve(poolzBack.address, amount, { from: firstAddress })
             const date = new Date()
             date.setHours(date.getHours() + 4)   // add 4 hours
             const finishTime = Math.floor(date.getTime() / 1000)
@@ -75,7 +75,7 @@ contract('Integration between HodlersWhitelist and PoolzBack', accounts => {
         it('should create new Hodlers Whitelist', async () => {
             const now = Date.now() / 1000 // current timestamp in seconds
             const timestamp = Number(now.toFixed()) + 3600 // timestamp one hour from now
-            const result = await hodlersWhitelist.CreateManualWhiteList(timestamp, {from: firstAddress})
+            const result = await hodlersWhitelist.CreateManualWhiteList(timestamp, { from: firstAddress })
             const count = await hodlersWhitelist.WhiteListCount()
             const logs = result.logs[0].args
             whitelistId = logs._WhitelistId.toString()
@@ -86,14 +86,14 @@ contract('Integration between HodlersWhitelist and PoolzBack', accounts => {
         })
 
         it('should set the main hodlers whitelist ID', async () => {
-            await hodlersWhitelist.SetMainWhitelistId(whitelistId, {from: firstAddress})
+            await hodlersWhitelist.SetMainWhitelistId(whitelistId, { from: firstAddress })
             const result = await hodlersWhitelist.MainWhitelistId()
             assert.equal(result, whitelistId)
         })
 
         it('should add addresses to whitelist', async () => {
             hodlers = [accounts[1], accounts[2], accounts[3], accounts[4], accounts[5]]
-            await hodlersWhitelist.AddAddress(whitelistId, hodlers, {from: firstAddress})
+            await hodlersWhitelist.AddAddress(whitelistId, hodlers, { from: firstAddress })
             const result1 = await hodlersWhitelist.IsPOZHolder(accounts[1])
             assert.isTrue(result1)
             const result2 = await hodlersWhitelist.IsPOZHolder(accounts[2])
@@ -108,7 +108,7 @@ contract('Integration between HodlersWhitelist and PoolzBack', accounts => {
             assert.isFalse(result6)
         })
     })
-    
+
     describe('Investing in Pool', () => {
         it('moving time to when pool is open', async () => {
             await timeMachine.advanceTimeAndBlock(3600 * 2);
@@ -117,14 +117,14 @@ contract('Integration between HodlersWhitelist and PoolzBack', accounts => {
         })
 
         it('fail to invest when investor is not hodler', async () => {
-            await truffleAssert.reverts(poolzBack.InvestETH(poolId, {from: accounts[9], value: web3.utils.toWei('0.1')}), 'Only POZ holder can invest')
+            await truffleAssert.reverts(poolzBack.InvestETH(poolId, { from: accounts[9], value: web3.utils.toWei('0.1') }), 'Only POZ holder can invest')
         })
 
         it('Successfully invest when investor is Hodler', async () => {
-            const result = await poolzBack.InvestETH(poolId, {from: hodlers[0], value: web3.utils.toWei('0.4')})
+            const result = await poolzBack.InvestETH(poolId, { from: hodlers[0], value: web3.utils.toWei('0.4') })
             const tokenDecimals = await testToken.decimals()
             const realRate = publicRate.div(new BN(10).pow(new BN(21 + tokenDecimals.toNumber() - 18))) // converting decimal21Rate to realRate
-            const tokens  =  0.4 * realRate.toNumber()
+            const tokens = 0.4 * realRate.toNumber()
             const bal = await testToken.balanceOf(hodlers[0])
             assert.deepEqual(bal, new BN(tokens).mul(new BN(10).pow(tokenDecimals)))
         })
