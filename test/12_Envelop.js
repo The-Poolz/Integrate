@@ -1,20 +1,20 @@
 const Token = artifacts.require("POOLZSYNT")
-const TestToken = artifacts.require("OriginalToken");
-const LockedDeal = artifacts.require("LockedDeal");
-const { assert } = require('chai');
-const truffleAssert = require('truffle-assertions');
+const TestToken = artifacts.require("OriginalToken")
+const LockedDeal = artifacts.require("LockedDeal")
+const { assert } = require('chai')
+const truffleAssert = require('truffle-assertions')
 const BigNumber = require("bignumber.js")
-const timeMachine = require('ganache-time-traveler');
+const timeMachine = require('ganache-time-traveler')
 BigNumber.config({ EXPONENTIAL_AT: 1e+9 })
 
 contract('Integration Between Envelop Token and LockedDeal', accounts => {
     let token, originalToken, lockedDealContract, firstAddress = accounts[0]
     const cap = new BigNumber(10000)
     const timestamps = []
-    const ratios = [1,1,1]
+    const ratios = [1, 1, 1]
 
     before(async () => {
-        originalToken = await TestToken.new('OrgToken', 'ORGT', {from: firstAddress});
+        originalToken = await TestToken.new('OrgToken', 'ORGT', { from: firstAddress })
         lockedDealContract = await LockedDeal.new()
         const now = new Date()
         timestamps.push((now.setHours(now.getHours() + 1) / 1000).toFixed())
@@ -26,8 +26,8 @@ contract('Integration Between Envelop Token and LockedDeal', accounts => {
         it('should deploy new envelop token', async () => {
             const tokenName = "REAL Synthetic"
             const tokenSymbol = "~REAL Poolz"
-            const _decimals = '18';
-            token = await Token.new(tokenName, tokenSymbol, cap.toString(), _decimals ,firstAddress, {from: firstAddress})
+            const _decimals = '18'
+            token = await Token.new(tokenName, tokenSymbol, cap.toString(), _decimals, firstAddress, { from: firstAddress })
             const name = await token.name()
             const symbol = await token.symbol()
             const firstBalance = await token.balanceOf(firstAddress)
@@ -40,11 +40,11 @@ contract('Integration Between Envelop Token and LockedDeal', accounts => {
         })
 
         it('should set locking details', async () => {
-            await originalToken.approve(token.address, cap.multipliedBy(10 ** 18).toString(), {from: firstAddress})
+            await originalToken.approve(token.address, cap.multipliedBy(10 ** 18).toString(), { from: firstAddress })
             const approval = await originalToken.allowance(firstAddress, token.address)
             const balance = await originalToken.balanceOf(firstAddress)
             const _cap = await token.cap()
-            const tx = await token.SetLockingDetails(originalToken.address, timestamps, ratios, {from: firstAddress})
+            const tx = await token.SetLockingDetails(originalToken.address, timestamps, ratios, { from: firstAddress })
             const originalAddress = tx.logs[3].args.TokenAddress
             const totalAmount = tx.logs[3].args.Amount
             const totalUnlocks = tx.logs[3].args.TotalUnlocks
@@ -53,7 +53,7 @@ contract('Integration Between Envelop Token and LockedDeal', accounts => {
             assert.equal(totalAmount.toString(), tokenCap.toString())
             assert.equal(totalUnlocks, timestamps.length)
         })
-    
+
         it('verifying locking details', async () => {
             const totalRatios = ratios.reduce((a, b) => a + b, 0)
             const orgToken = await token.OriginalTokenAddress()
@@ -62,7 +62,7 @@ contract('Integration Between Envelop Token and LockedDeal', accounts => {
             assert.equal(orgToken, originalToken.address)
             assert.equal(totalUnlocks, timestamps.length)
             assert.equal(ratioTotal, totalRatios)
-            for(let i=0 ; i<totalUnlocks ; i++){
+            for (let i = 0; i < totalUnlocks; i++) {
                 const details = await token.LockDetails(i)
                 assert.equal(details.unlockTime.toString(), timestamps[i].toString())
                 assert.equal(details.ratio.toString(), ratios[i].toString())
@@ -73,24 +73,24 @@ contract('Integration Between Envelop Token and LockedDeal', accounts => {
     describe('Integration with locked deal contract', () => {
         const secondAddress = accounts[1], thirdAddress = accounts[2], fourthAddress = accounts[3], fifthAddress = accounts[4]
         const ten = new BigNumber(18)
-        const amount = new BigNumber(10**19)
+        const amount = new BigNumber(10 ** 19)
 
         const runSimulation = (amountToActivate, blockTime) => {
             let totalAmount = new BigNumber(0), creditableAmount = new BigNumber(0)
             const unlockTimes = [], unlockAmounts = []
-            for(let i=0 ; i<timestamps.length; i++) {
+            for (let i = 0; i < timestamps.length; i++) {
                 const amount = amountToActivate.multipliedBy(ratios[i]).dividedToIntegerBy(ratios.length)
                 totalAmount = totalAmount.plus(amount)
-                if(timestamps[i] <= blockTime){
+                if (timestamps[i] <= blockTime) {
                     creditableAmount = creditableAmount.plus(amount)
                 } else {
                     unlockTimes.push(timestamps[i])
                     unlockAmounts.push(amount)
                 }
             }
-            if(totalAmount.isLessThan(amountToActivate)){
+            if (totalAmount.isLessThan(amountToActivate)) {
                 const difference = amountToActivate.minus(totalAmount)
-                if(unlockAmounts.length){
+                if (unlockAmounts.length) {
                     unlockAmounts[unlockAmounts.length - 1] = unlockAmounts[unlockAmounts.length - 1].plus(difference)
                 } else {
                     creditableAmount = creditableAmount.plus(difference)
@@ -105,11 +105,11 @@ contract('Integration Between Envelop Token and LockedDeal', accounts => {
             // unlockAmounts.forEach(item => {
             //     console.log(item.toString())
             // })
-            return {totalAmount, creditableAmount, unlockTimes, unlockAmounts}
+            return { totalAmount, creditableAmount, unlockTimes, unlockAmounts }
         }
 
         const getLockedDealData = async (dealId, ownerAddress) => {
-            const data = await lockedDealContract.GetPoolData(dealId, {from: ownerAddress})
+            const data = await lockedDealContract.GetPoolData(dealId, { from: ownerAddress })
             return {
                 unlockTime: data[0],
                 amount: data[1],
@@ -121,19 +121,19 @@ contract('Integration Between Envelop Token and LockedDeal', accounts => {
         before(async () => {
             // sending token to 3 addresses
             const balance = await token.balanceOf(firstAddress)
-            await token.transfer(secondAddress, amount.toString(), {from: firstAddress})
-            await token.transfer(thirdAddress, amount.toString(), {from: firstAddress})
-            await token.transfer(fourthAddress, amount.toString(), {from: firstAddress})
-            await token.transfer(fifthAddress, amount.toString(), {from: firstAddress})
+            await token.transfer(secondAddress, amount.toString(), { from: firstAddress })
+            await token.transfer(thirdAddress, amount.toString(), { from: firstAddress })
+            await token.transfer(fourthAddress, amount.toString(), { from: firstAddress })
+            await token.transfer(fifthAddress, amount.toString(), { from: firstAddress })
         })
-        
+
         after(async () => {
             const now = Date.now()
             await timeMachine.advanceBlockAndSetTime(Math.floor(now / 1000))
         })
 
         it('should set locked deal contract address', async () => {
-            await token.SetLockedDealAddress(lockedDealContract.address, {from: firstAddress})
+            await token.SetLockedDealAddress(lockedDealContract.address, { from: firstAddress })
             const address = await token.LockedDealAddress()
             assert.equal(lockedDealContract.address, address)
         })
@@ -141,7 +141,7 @@ contract('Integration Between Envelop Token and LockedDeal', accounts => {
         it('simulation for no unlock', async () => {
             // await timeMachine.advanceBlockAndSetTime(timestamps[1])
             const data = await token.getActivationResult(amount.toString())
-            const time =  new Date().getTime / 1000
+            const time = new Date().getTime / 1000
             const now = Math.floor(time)
             const sim = runSimulation(amount, now)
             assert.equal(data[0].toString(), sim.totalAmount.toString())
@@ -160,11 +160,11 @@ contract('Integration Between Envelop Token and LockedDeal', accounts => {
             assert.equal(data[0].toString(), sim.totalAmount.toString())
             assert.equal(data[1].toString(), sim.creditableAmount.toString())
             data[2].forEach((item, index) => {
-                if(item.toString() === '0') return
+                if (item.toString() === '0') return
                 assert.equal(item.toString(), sim.unlockTimes[index].toString())
             })
             data[3].forEach((item, index) => {
-                if(item.toString() === '0') return
+                if (item.toString() === '0') return
                 assert.equal(item.toString(), sim.unlockAmounts[index].toString())
             })
         })
@@ -175,11 +175,11 @@ contract('Integration Between Envelop Token and LockedDeal', accounts => {
             assert.equal(data[0].toString(), sim.totalAmount.toString())
             assert.equal(data[1].toString(), sim.creditableAmount.toString())
             data[2].forEach((item, index) => {
-                if(item.toString() === '0') return
+                if (item.toString() === '0') return
                 assert.equal(item.toString(), sim.unlockTimes[index].toString())
             })
             data[3].forEach((item, index) => {
-                if(item.toString() === '0') return
+                if (item.toString() === '0') return
                 assert.equal(item.toString(), sim.unlockAmounts[index].toString())
             })
         })
@@ -190,11 +190,11 @@ contract('Integration Between Envelop Token and LockedDeal', accounts => {
             assert.equal(data[0].toString(), sim.totalAmount.toString())
             assert.equal(data[1].toString(), sim.creditableAmount.toString())
             data[2].forEach((item, index) => {
-                if(item.toString() === '0') return
+                if (item.toString() === '0') return
                 assert.equal(item.toString(), sim.unlockTimes[index].toString())
             })
             data[3].forEach((item, index) => {
-                if(item.toString() === '0') return
+                if (item.toString() === '0') return
                 assert.equal(item.toString(), sim.unlockAmounts[index].toString())
             })
             const now = Date.now()
@@ -203,11 +203,11 @@ contract('Integration Between Envelop Token and LockedDeal', accounts => {
 
         it('activating token before all unlocks', async () => {
             const userSyntheticBalance = await token.balanceOf(secondAddress)
-            const time =  new Date().getTime / 1000
+            const time = new Date().getTime / 1000
             const now = Math.floor(time)
             const sim = runSimulation(new BigNumber(userSyntheticBalance.toString()), now)
-            const tx = await token.ActivateSynthetic({from: secondAddress})
-            const deals = await lockedDealContract.GetMyPoolsId({from: secondAddress})
+            const tx = await token.ActivateSynthetic({ from: secondAddress })
+            const deals = await lockedDealContract.GetMyPoolsId({ from: secondAddress })
             const userOriginalBalance = await originalToken.balanceOf(secondAddress)
             assert.equal(userOriginalBalance.toString(), sim.creditableAmount.toString())
             assert.equal(tx.logs[tx.logs.length - 1].args.Amount.toString(), sim.totalAmount.toString())
@@ -229,8 +229,8 @@ contract('Integration Between Envelop Token and LockedDeal', accounts => {
             await timeMachine.advanceBlockAndSetTime(timestamps[0])
             const userSyntheticBalance = await token.balanceOf(thirdAddress)
             const sim = runSimulation(new BigNumber(userSyntheticBalance.toString()), timestamps[0])
-            const tx = await token.ActivateSynthetic({from: thirdAddress})
-            const deals = await lockedDealContract.GetMyPoolsId({from: thirdAddress})
+            const tx = await token.ActivateSynthetic({ from: thirdAddress })
+            const deals = await lockedDealContract.GetMyPoolsId({ from: thirdAddress })
             const userOriginalBalance = await originalToken.balanceOf(thirdAddress)
             assert.equal(userOriginalBalance.toString(), sim.creditableAmount.toString())
             assert.equal(tx.logs[tx.logs.length - 1].args.Amount.toString(), sim.totalAmount.toString())
@@ -251,8 +251,8 @@ contract('Integration Between Envelop Token and LockedDeal', accounts => {
             await timeMachine.advanceBlockAndSetTime(timestamps[1])
             const userSyntheticBalance = await token.balanceOf(fourthAddress)
             const sim = runSimulation(new BigNumber(userSyntheticBalance.toString()), timestamps[1])
-            const tx = await token.ActivateSynthetic({from: fourthAddress})
-            const deals = await lockedDealContract.GetMyPoolsId({from: fourthAddress})
+            const tx = await token.ActivateSynthetic({ from: fourthAddress })
+            const deals = await lockedDealContract.GetMyPoolsId({ from: fourthAddress })
             const userOriginalBalance = await originalToken.balanceOf(fourthAddress)
             assert.equal(userOriginalBalance.toString(), sim.creditableAmount.toString())
             assert.equal(tx.logs[tx.logs.length - 1].args.Amount.toString(), sim.totalAmount.toString())
@@ -273,8 +273,8 @@ contract('Integration Between Envelop Token and LockedDeal', accounts => {
             await timeMachine.advanceBlockAndSetTime(timestamps[2])
             const userSyntheticBalance = await token.balanceOf(fifthAddress)
             const sim = runSimulation(new BigNumber(userSyntheticBalance.toString()), timestamps[2])
-            const tx = await token.ActivateSynthetic({from: fifthAddress})
-            const deals = await lockedDealContract.GetMyPoolsId({from: fifthAddress})
+            const tx = await token.ActivateSynthetic({ from: fifthAddress })
+            const deals = await lockedDealContract.GetMyPoolsId({ from: fifthAddress })
             const userOriginalBalance = await originalToken.balanceOf(fifthAddress)
             assert.equal(userOriginalBalance.toString(), sim.creditableAmount.toString())
             assert.equal(tx.logs[tx.logs.length - 1].args.Amount.toString(), sim.totalAmount.toString())
