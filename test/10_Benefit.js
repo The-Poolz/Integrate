@@ -150,7 +150,14 @@ contract('Integration between PoolzBack, Uniswap and Benefit', accounts => {
             expectedBalance = '2502000'
             result = await uniswapV2Pair.balanceOf(pozHolder)
             assert.equal(expectedBalance, result.toString(), 'check lp amount')
-            //
+            // const balance = await pozToken.balanceOf(firstAddress)
+            // const balance1 = await testToken.balanceOf(firstAddress)
+            // console.log(balance.toString())
+            // console.log(balance1.toString())
+            // await testToken.transfer(uniswapV2Pair.address, '1999980000000')
+            // await pozToken.transfer(uniswapV2Pair.address, '1999980000000')
+            // await uniswapV2Pair.swap('1000', '1000', accounts[5], '0x', {from: accounts[5]})
+            
             await uniswapV2Pair.skim(pozHolder, {from: pozHolder})
             result = await benefit.CalcTotal(pozHolder)
             expectedBalance = '5000000'
