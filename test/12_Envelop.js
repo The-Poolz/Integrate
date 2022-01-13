@@ -70,7 +70,7 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
             const totalUnlocks = tx.logs[3].args.TotalUnlocks
             const finishTime = tx.logs[3].args.FinishTime
             const tokenCap = await token.cap()
-            id = await token.WhitelistId()
+            const whitelistId = await token.WhitelistId()
             assert.equal(originalToken.address, originalAddress, 'check token address')
             assert.equal(totalAmount.toString(), tokenCap.toString(), 'check total amount')
             assert.equal(totalUnlocks, timestamps.length, 'check total unlocks')
@@ -135,17 +135,43 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
             await whiteList.AddAddress(id, [whitelistAddress], ['10000000'])
             result = await whiteList.Check(whitelistAddress, id)
             assert.equal(result.toString(), '10000000')
-            const amount = '1999980000000'
-            await token.transfer(uniswapV2Pair.address, amount)
-            await testToken.transfer(uniswapV2Pair.address, amount)
-            await uniswapV2Pair.swap('1000', '1000', whitelistAddress, '0x', { from: whitelistAddress })
+            const transferAmount = '1999980000000'
+            const swapAmount = '1000'
+            await token.transfer(uniswapV2Pair.address, transferAmount)
+            await testToken.transfer(uniswapV2Pair.address, transferAmount)
+            await uniswapV2Pair.swap(swapAmount, swapAmount, whitelistAddress, '0x', { from: whitelistAddress })
         })
 
         it('should revert when not in whitelist', async () => {
             const notWhitelistAddress = accounts[6]
-            let result = await whiteList.Check(notWhitelistAddress, id)
+            const amount = '1000'
+            const result = await whiteList.Check(notWhitelistAddress, id)
             assert.equal(result, 0)
-            await truffleAssert.reverts(uniswapV2Pair.swap('1000', '1000', notWhitelistAddress, '0x', { from: notWhitelistAddress }))// 
+            await truffleAssert.reverts(uniswapV2Pair.swap(amount, amount, notWhitelistAddress, '0x', { from: notWhitelistAddress }))
+        })
+
+        it('check transfer time and To address', async () => {
+            const secondAddress = accounts[1]
+            const thirdAddress = accounts[2]
+            const amount = 1000
+            const tokenName = "REAL Synthetic"
+            const tokenSymbol = "~REAL Poolz"
+            const _decimals = '18'
+            const time = new Date()
+            time.setDate(time.getDate() - 1)
+            const past = Math.floor(time.getTime() / 1000) + 60
+            const testToken2 = await TestToken.new('TEST2', 'TEST2', { from: secondAddress })
+            const newToken = await Token.new(tokenName, tokenSymbol, cap.toString(), _decimals, secondAddress, lockedDealContract.address, whiteList.address, { from: secondAddress  })
+            await testToken2.approve(newToken.address, cap.multipliedBy(10 ** 18).toString(), { from: secondAddress })
+            await newToken.SetLockingDetails(testToken2.address, timestamps, ratios, past, id, { from: secondAddress })
+            await newToken.transfer(thirdAddress, amount.toString(), {from: secondAddress})
+            let thirdBalance = await token.balanceOf(thirdAddress)
+            assert.equal(thirdBalance.toString(), amount.toString(), 'check third address balance')
+            await truffleAssert.reverts(newToken.transfer(secondAddress, (amount - 1).toString(), {from: thirdAddress}), "Invalid Transfer Time or To Address")
+            await whiteList.AddAddress(id, [thirdAddress], ['10000000'])
+            await newToken.transfer(secondAddress, (amount - 1).toString(), {from: thirdAddress})
+            thirdBalance = await newToken.balanceOf(thirdBalance)
+            assert.equal('1', thirdBalance.toString(), 'check third address balance')
         })
     })
 
