@@ -100,7 +100,6 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
             const amount = '15000000'
             await token.transfer(uniswapV2Pair.address, amount)
             await testToken.transfer(uniswapV2Pair.address, amount)
-            liquidity = await uniswapV2Pair.mint.call(firstAddress)
             await uniswapV2Pair.mint(firstAddress)
             const reserve0 = (await uniswapV2Pair.getReserves())['0']
             const reserve1 = (await uniswapV2Pair.getReserves())['1']
