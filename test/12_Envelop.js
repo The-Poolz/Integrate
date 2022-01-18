@@ -2,7 +2,6 @@ const Token = artifacts.require("POOLZSYNT")
 const TestToken = artifacts.require("OriginalToken")
 const LockedDeal = artifacts.require("LockedDeal")
 const WhiteList = artifacts.require("WhiteList")
-const ThePoolz = artifacts.require("ThePoolz")
 const UniswapV2Factory = artifacts.require("UniswapV2Factory")
 const UniswapV2Pair = artifacts.require("UniswapV2Pair")
 const { assert } = require('chai')
@@ -11,11 +10,9 @@ const BigNumber = require("bignumber.js")
 const timeMachine = require('ganache-time-traveler')
 BigNumber.config({ EXPONENTIAL_AT: 1e+9 })
 
-const { createNewWhiteList } = require('./helper')
-
 contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts => {
     let token, originalToken, lockedDealContract, firstAddress = accounts[0]
-    let whiteList, uniswapV2Factory, uniswapV2Pair, poolzBack, liquidity, id
+    let whiteList, uniswapV2Factory, uniswapV2Pair, id
     const cap = new BigNumber(10000)
     const timestamps = []
     const ratios = [1, 1, 1]
@@ -25,7 +22,6 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
         lockedDealContract = await LockedDeal.new()
         whiteList = await WhiteList.deployed()
         uniswapV2Factory = await UniswapV2Factory.deployed()
-        poolzBack = await ThePoolz.deployed()
         const now = new Date()
         timestamps.push((now.setHours(now.getHours() + 1) / 1000).toFixed())
         timestamps.push((now.setHours(now.getHours() + 1) / 1000).toFixed())
@@ -37,8 +33,6 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
             const tokenName = "REAL Synthetic"
             const tokenSymbol = "~REAL Poolz"
             const _decimals = '18'
-            const tx = await createNewWhiteList(whiteList, poolzBack.address, firstAddress)
-            id = tx.logs[0].args._WhiteListCount.toString()
             token = await Token.new(tokenName, tokenSymbol, cap.toString(), _decimals, firstAddress, lockedDealContract.address, whiteList.address, { from: firstAddress })
             const name = await token.name()
             const symbol = await token.symbol()
@@ -48,6 +42,7 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
             const expectedCapp = '10000000000000000000000'
             const lockedAddress = await token.LockedDealAddress()
             const whitelistAddress = await token.WhitelistAddress()
+            id = await token.WhitelistId()
             assert.equal(tokenName, name, 'check name')
             assert.equal(tokenSymbol, symbol, 'check symbol')
             assert.equal(decimals.toString(), _decimals, 'check decimals')
@@ -58,24 +53,19 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
         })
 
         it('should set locking details', async () => {
-            await originalToken.approve(token.address, cap.multipliedBy(10 ** 18).toString(), { from: firstAddress })
-            const approval = await originalToken.allowance(firstAddress, token.address)
-            const balance = await originalToken.balanceOf(firstAddress)
-            const time = new Date()
-            time.setDate(time.getDate() + 1)
-            const future = Math.floor(time.getTime() / 1000) + 60
-            const tx = await token.SetLockingDetails(originalToken.address, timestamps, ratios, future, id, { from: firstAddress })
+            await originalToken.approve(token.address, '10000000000000000000000', { from: firstAddress })
+            const now = new Date()
+            const finishTime = (now.setHours(now.getHours() + 1) / 1000).toFixed()
+            const tx = await token.SetLockingDetails(originalToken.address, timestamps, ratios, finishTime, { from: firstAddress })
             const originalAddress = tx.logs[3].args.TokenAddress
             const totalAmount = tx.logs[3].args.Amount
             const totalUnlocks = tx.logs[3].args.TotalUnlocks
-            const finishTime = tx.logs[3].args.FinishTime
+            const time = tx.logs[3].args.FinishTime
             const tokenCap = await token.cap()
-            const whitelistId = await token.WhitelistId()
             assert.equal(originalToken.address, originalAddress, 'check token address')
             assert.equal(totalAmount.toString(), tokenCap.toString(), 'check total amount')
             assert.equal(totalUnlocks, timestamps.length, 'check total unlocks')
-            assert.equal(finishTime, time, 'check finish time')
-            assert.equal(whitelistId.toString(), id.toString(), 'check whitelist ID')
+            assert.equal(time, finishTime, 'check finish time')
         })
 
         it('verifying locking details', async () => {
@@ -137,10 +127,14 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
             const amount = '1000'
             const result = await whiteList.Check(notWhitelistAddress, id)
             assert.equal(result, 0)
-            await truffleAssert.reverts(uniswapV2Pair.swap(amount, amount, notWhitelistAddress, '0x', { from: notWhitelistAddress }))
+            const transferAmount = '1999980000000'
+            await uniswapV2Pair.sync()
+            await token.transfer(uniswapV2Pair.address, transferAmount)
+            await truffleAssert.reverts(uniswapV2Pair.swap(amount, amount, notWhitelistAddress, '0x', { from: notWhitelistAddress }), "UniswapV2: TRANSFER_FAILED")
         })
 
-        it('check transfer time and To address', async () => {
+        it('check when the finish time is over', async () => {
+            // create another synth token when the finish time is over
             const secondAddress = accounts[1]
             const thirdAddress = accounts[2]
             const amount = 1000
@@ -151,17 +145,24 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
             time.setDate(time.getDate() - 1)
             const past = Math.floor(time.getTime() / 1000) + 60
             const testToken2 = await TestToken.new('TEST2', 'TEST2', { from: secondAddress })
-            const newToken = await Token.new(tokenName, tokenSymbol, cap.toString(), _decimals, secondAddress, lockedDealContract.address, whiteList.address, { from: secondAddress  })
+            const newToken = await Token.new(tokenName, tokenSymbol, cap.toString(), _decimals, secondAddress, lockedDealContract.address, whiteList.address, { from: secondAddress })
             await testToken2.approve(newToken.address, cap.multipliedBy(10 ** 18).toString(), { from: secondAddress })
-            await newToken.SetLockingDetails(testToken2.address, timestamps, ratios, past, id, { from: secondAddress })
-            await newToken.transfer(thirdAddress, amount.toString(), {from: secondAddress})
-            let thirdBalance = await token.balanceOf(thirdAddress)
-            assert.equal(thirdBalance.toString(), amount.toString(), 'check third address balance')
-            await truffleAssert.reverts(newToken.transfer(secondAddress, (amount - 1).toString(), {from: thirdAddress}), "Invalid Transfer Time or To Address")
-            await whiteList.AddAddress(id, [thirdAddress], ['10000000'])
-            await newToken.transfer(secondAddress, (amount - 1).toString(), {from: thirdAddress})
-            thirdBalance = await newToken.balanceOf(thirdBalance)
-            assert.equal('1', thirdBalance.toString(), 'check third address balance')
+            await newToken.SetLockingDetails(testToken2.address, timestamps, ratios, past, { from: secondAddress })
+            // check transfer functionality
+            await newToken.transfer(thirdAddress, (amount * 2).toString(), { from: secondAddress })
+            let thirdBalance = await newToken.balanceOf(thirdAddress)
+            assert.equal(thirdBalance.toString(), (amount * 2).toString(), 'check third address balance')
+            await newToken.transfer(secondAddress, amount.toString(), { from: thirdAddress }) // no whitelist address
+            const newTokenID = await newToken.WhitelistId()
+            await whiteList.AddAddress(newTokenID, [thirdAddress], ['10000000'], { from: secondAddress })
+            await newToken.transfer(secondAddress, amount.toString(), { from: thirdAddress }) // whitelist address
+            thirdBalance = await newToken.balanceOf(thirdAddress)
+            assert.equal('0', thirdBalance.toString(), 'check third address balance')
+        })
+
+        after(async () => {
+            await uniswapV2Pair.sync()
+            await uniswapV2Pair.skim(firstAddress)
         })
     })
 
@@ -214,7 +215,7 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
         }
 
         before(async () => {
-            // sending token to 3 addresses
+            // sending token to 4 addresses
             const balance = await token.balanceOf(firstAddress)
             await token.transfer(secondAddress, amount.toString(), { from: firstAddress })
             await token.transfer(thirdAddress, amount.toString(), { from: firstAddress })
@@ -225,12 +226,6 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
         after(async () => {
             const now = Date.now()
             await timeMachine.advanceBlockAndSetTime(Math.floor(now / 1000))
-        })
-
-        it('should set locked deal contract address', async () => {
-            await token.SetLockedDealAddress(lockedDealContract.address, { from: firstAddress })
-            const address = await token.LockedDealAddress()
-            assert.equal(lockedDealContract.address, address)
         })
 
         it('simulation for no unlock', async () => {
