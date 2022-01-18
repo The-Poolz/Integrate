@@ -92,24 +92,6 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
                 assert.equal(details.ratio.toString(), ratios[i].toString())
             }
         })
-
-        it('should set whitelist address', async () => {
-            const oldWhiteList = whiteList.address
-            const tx = await createNewWhiteList(whiteList, poolzBack.address, firstAddress)
-            const oldID = id
-            id = tx.logs[0].args._WhiteListCount.toString()
-            await token.setWhiteListAddress(whiteList.address)
-            await token.setWhiteListId(id)
-            const whiteListAddress = await token.WhitelistAddress()
-            const whiteListID = await token.WhitelistId()
-            assert.notEqual(oldID, id)
-            assert.equal(whiteListID, id)
-            assert.notEqual(oldWhiteList, whiteList.address)
-            assert.equal(whiteList.address, whiteListAddress)
-            // await token.setWhiteListAddress(oldWhiteList)
-            // await token.setWhiteListId(oldID)
-            // await whiteList.ChangeContract(oldID, oldWhiteList)
-        })
     })
 
     describe('Integration with LP contract', () => {
