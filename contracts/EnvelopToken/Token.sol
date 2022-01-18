@@ -20,8 +20,7 @@ contract POOLZSYNT is ERC20, ERC20Capped, ERC20Burnable, Manageable {
         uint8 _decimals,
         address _owner,
         address _lockedDealAddress,
-        address _whitelistAddress,
-        uint256 _whitelistId
+        address _whitelistAddress
     )
         public
         ERC20(_name, _symbol)
@@ -31,7 +30,13 @@ contract POOLZSYNT is ERC20, ERC20Capped, ERC20Burnable, Manageable {
         _setupDecimals(_decimals);
         _mint(_owner, cap());
         _SetLockedDealAddress(_lockedDealAddress);
-        _SetupWhitelist(_whitelistAddress, _whitelistId);
+        if(_whitelistAddress != address(0)){
+            uint256 whitelistId = IWhiteList(_whitelistAddress).CreateManualWhiteList(uint256(-1), address(this));
+            IWhiteList(_whitelistAddress).ChangeCreator(whitelistId, _msgSender());
+            _SetupWhitelist(_whitelistAddress, whitelistId);
+        } else {
+            _SetupWhitelist(_whitelistAddress, 0);
+        }
     }
 
     function _beforeTokenTransfer(address from, address to, uint256 amount)
@@ -59,6 +64,7 @@ contract POOLZSYNT is ERC20, ERC20Capped, ERC20Burnable, Manageable {
         (uint amountToBurn, uint CreditableAmount, uint64[] memory unlockTimes, uint256[] memory unlockAmounts) = getActivationResult(_amountToActivate);
         TransferToken(OriginalTokenAddress, _msgSender(), CreditableAmount);
         if(SafeMath.sub(amountToBurn, CreditableAmount) > 0){
+            require(LockedDealAddress != address(0), "Error: LockedDeal Contract Address Missing");
             ApproveAllowanceERC20(OriginalTokenAddress, LockedDealAddress, SafeMath.sub(amountToBurn, CreditableAmount));
             for(uint8 i=0 ; i<unlockTimes.length ; i++){
                 if(unlockAmounts[i] > 0){

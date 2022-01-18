@@ -10,6 +10,9 @@ const createNewWhiteList = async (whiteList, contractAddress, fromAddress) => {
     return result
 }
 
+const uintMinusOne = '115792089237316195423570985008687907853269984665640564039457584007913129639935'
+
 module.exports = {
-    createNewWhiteList
+    createNewWhiteList,
+    uintMinusOne
 }
