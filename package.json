@@ -7,6 +7,7 @@
     "poolz-back": "^1.0.10",
     "poolz-benefit": "^1.0.3",
     "poolz-envelop-token": "^1.0.10",
+    "poolz-helper": "^1.1.6",
     "poolz-hodlers-whitelist": "^1.0.2",
     "poolz-locked-deal": "^1.0.6",
     "poolz-whitelist": "^1.0.5",
