@@ -39,7 +39,7 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
             const firstBalance = await token.balanceOf(firstAddress)
             const decimals = await token.decimals()
             const capp = await token.cap()
-            const expectedCapp = '10000000000000000000000'
+            const expectedCapp = cap.multipliedBy(10 ** 18).toString()
             const lockedAddress = await token.LockedDealAddress()
             const whitelistAddress = await token.WhitelistAddress()
             id = await token.WhitelistId()
@@ -53,7 +53,7 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
         })
 
         it('should set locking details', async () => {
-            await originalToken.approve(token.address, '10000000000000000000000', { from: firstAddress })
+            await originalToken.approve(token.address, cap.multipliedBy(10 ** 18).toString(), { from: firstAddress })
             const now = new Date()
             const finishTime = (now.setHours(now.getHours() + 1) / 1000).toFixed()
             const tx = await token.SetLockingDetails(originalToken.address, timestamps, ratios, finishTime, { from: firstAddress })
@@ -133,7 +133,7 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
         })
 
         it('check when the finish time is over', async () => {
-            // create another synth token when the finish time is over
+            // create another synth token with past time configuration
             const secondAddress = accounts[1]
             const thirdAddress = accounts[2]
             const amount = 1000
