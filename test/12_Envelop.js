@@ -16,6 +16,9 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
     const cap = new BigNumber(10000)
     const timestamps = []
     const ratios = [1, 1, 1]
+    const tokenName = "REAL Synthetic"
+    const tokenSymbol = "~REAL Poolz"
+    const decimals = '18'
 
     before(async () => {
         originalToken = await TestToken.new('OrgToken', 'ORGT', { from: firstAddress })
@@ -30,14 +33,11 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
 
     describe('setting up Envelop Token', () => {
         it('should deploy new envelop token', async () => {
-            const tokenName = "REAL Synthetic"
-            const tokenSymbol = "~REAL Poolz"
-            const _decimals = '18'
-            token = await Token.new(tokenName, tokenSymbol, cap.toString(), _decimals, firstAddress, lockedDealContract.address, whiteList.address, { from: firstAddress })
+            token = await Token.new(tokenName, tokenSymbol, cap.toString(), decimals, firstAddress, lockedDealContract.address, whiteList.address, { from: firstAddress })
             const name = await token.name()
             const symbol = await token.symbol()
             const firstBalance = await token.balanceOf(firstAddress)
-            const decimals = await token.decimals()
+            const tokenDecimals = await token.decimals()
             const capp = await token.cap()
             const expectedCapp = cap.multipliedBy(10 ** 18).toString()
             const lockedAddress = await token.LockedDealAddress()
@@ -45,7 +45,7 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
             id = await token.WhitelistId()
             assert.equal(tokenName, name, 'check name')
             assert.equal(tokenSymbol, symbol, 'check symbol')
-            assert.equal(decimals.toString(), _decimals, 'check decimals')
+            assert.equal(tokenDecimals.toString(), decimals, 'check decimals')
             assert.equal(firstBalance.toString(), cap.multipliedBy(10 ** 18).toString(), 'check first address balance')
             assert.equal(lockedAddress, lockedDealContract.address, 'check lockedDeal address')
             assert.equal(whitelistAddress, whiteList.address, 'check whitelist address')
@@ -113,23 +113,30 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
             assert.equal(result, 0)
             await whiteList.AddAddress(id, [whitelistAddress], ['10000000'])
             result = await whiteList.Check(whitelistAddress, id)
-            assert.equal(result.toString(), '10000000')
+            assert.equal(result.toString(), '10000000', 'Check if address is whitelisted')
             const transferAmount = '1999980000000'
             const swapAmount = '1000'
             await token.transfer(uniswapV2Pair.address, transferAmount)
             await testToken.transfer(uniswapV2Pair.address, transferAmount)
             await uniswapV2Pair.swap(swapAmount, swapAmount, whitelistAddress, '0x', { from: whitelistAddress })
+            const balance = await token.balanceOf(whitelistAddress)
+            assert.equal(balance.toString(), swapAmount, 'check whitelist balance')
         })
 
         it('should revert when not in whitelist', async () => {
             const notWhitelistAddress = accounts[6]
-            const amount = '1000'
+            const swapAmount = '1000'
             const result = await whiteList.Check(notWhitelistAddress, id)
-            assert.equal(result, 0)
+            assert.equal(result, 0, 'Check if address is whitelisted')
             const transferAmount = '1999980000000'
             await uniswapV2Pair.sync()
             await token.transfer(uniswapV2Pair.address, transferAmount)
-            await truffleAssert.reverts(uniswapV2Pair.swap(amount, amount, notWhitelistAddress, '0x', { from: notWhitelistAddress }), "UniswapV2: TRANSFER_FAILED")
+            await truffleAssert.reverts(uniswapV2Pair.swap(swapAmount, swapAmount, notWhitelistAddress, '0x', { from: notWhitelistAddress }), "UniswapV2: TRANSFER_FAILED")
+            // check transfer if add notWhitelistAddress to whitelist
+            await whiteList.AddAddress(id, [notWhitelistAddress], ['10000000'])
+            await uniswapV2Pair.swap(swapAmount, swapAmount, notWhitelistAddress, '0x', { from: notWhitelistAddress })
+            const balance = await token.balanceOf(notWhitelistAddress)
+            assert.equal(balance.toString(), swapAmount, 'check notWhitelistAddress balance')
         })
 
         it('check when the finish time is over', async () => {
@@ -137,14 +144,11 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
             const secondAddress = accounts[1]
             const thirdAddress = accounts[2]
             const amount = 1000
-            const tokenName = "REAL Synthetic"
-            const tokenSymbol = "~REAL Poolz"
-            const _decimals = '18'
             const time = new Date()
             time.setDate(time.getDate() - 1)
             const past = Math.floor(time.getTime() / 1000) + 60
             const testToken2 = await TestToken.new('TEST2', 'TEST2', { from: secondAddress })
-            const newToken = await Token.new(tokenName, tokenSymbol, cap.toString(), _decimals, secondAddress, lockedDealContract.address, whiteList.address, { from: secondAddress })
+            const newToken = await Token.new(tokenName, tokenSymbol, cap.toString(), decimals, secondAddress, lockedDealContract.address, whiteList.address, { from: secondAddress })
             await testToken2.approve(newToken.address, cap.multipliedBy(10 ** 18).toString(), { from: secondAddress })
             await newToken.SetLockingDetails(testToken2.address, timestamps, ratios, past, { from: secondAddress })
             // check transfer functionality
