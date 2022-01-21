@@ -27,8 +27,7 @@ contract Benefit is IPOZBenefit, Ownable {
         require(_MinHold > 0, "Must be more then 0");
         MinHold = _MinHold;
     }
-    
-    //make sure that LP contract got tokens
+
     function AddNewLpCheck(address _Token, address _LpContract)
         public
         onlyOwner

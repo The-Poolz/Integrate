@@ -335,7 +335,6 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
         })
 
         it('activating token before all unlocks', async () => {
-            await timeMachine.advanceBlockAndSetTime(finishTime)
             const userSyntheticBalance = await token.balanceOf(secondAddress)
             const time = new Date().getTime / 1000
             const now = Math.floor(time)

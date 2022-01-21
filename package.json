@@ -6,7 +6,7 @@
     "ethereumjs-util": "^6.2.0",
     "poolz-back": "^1.0.10",
     "poolz-benefit": "^1.0.3",
-    "poolz-envelop-token": "^1.0.11",
+    "poolz-envelop-token": "^1.1.0",
     "poolz-helper": "^1.1.6",
     "poolz-hodlers-whitelist": "^1.0.2",
     "poolz-locked-deal": "^1.0.6",
