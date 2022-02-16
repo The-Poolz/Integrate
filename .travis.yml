@@ -2,7 +2,7 @@ dist: xenial
 sudo: required
 language: node_js
 node_js:
-  - "16.13.1"
+  - "12.19.0"
 matrix:
   include:
     - os: linux
@@ -11,6 +11,6 @@ install:
   - bash ./bin/travis-install.sh
 script:
   - bash ./bin/build.sh
-  - truffle run coverage --network development
+  - bash ./bin/test.sh
 after_script:
  - bash <(curl -s https://codecov.io/bash)
