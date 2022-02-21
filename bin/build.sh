@@ -19,7 +19,7 @@ cp -a ./node_modules/poolz-envelop-token/contracts/. ./contracts/EnvelopToken
 mkdir ./contracts/Uniswap-V2-Core
 cp -a ./node_modules/@uniswap/v2-core/contracts/. ./contracts/Uniswap-V2-Core
 
-mkdir ./contracts/WhitelistConverter
+mkdir ./contracts/WhitelistConvertor
 cp -a ./node_modules/poolz-whitelist-converter/contracts/. ./contracts/WhitelistConverter
 
 mkdir ./test/01_PoolzBack
