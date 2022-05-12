@@ -4,13 +4,13 @@ const WhiteList = artifacts.require('WhiteList')
 const { assert, should } = require('chai')
 const truffleAssert = require('truffle-assertions')
 const BigNumber = require('bignumber.js')
+const constants = require("@openzeppelin/test-helpers/src/constants")
 var BN = web3.utils.BN
 
 const pozRate = new BN('1000000000') // with decimal21 (shifter) 1 eth^18 = 1 token^6
 const publicRate = new BN('500000000') // with decimal21 (shifter) 1 eth^18 = 1 token^6
 const amount = new BN('3000000') //3 tokens for sale
 const invest = web3.utils.toWei('1', 'ether') //1eth
-const zero_address = "0x0000000000000000000000000000000000000000"
 
 const { createNewWhiteList } = require('./helper')
 
@@ -109,7 +109,7 @@ contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) 
                 const date = new Date()
                 date.setDate(date.getDate() + 1)   // add a day
                 const future = Math.floor(date.getTime() / 1000) + 60
-                const tx = await poolzBack.CreatePool(ethTestToken.address, future, publicRate, pozRate, amount, 0, zero_address, true, 0, investorWhiteListId, { from: firstAddress })
+                const tx = await poolzBack.CreatePool(ethTestToken.address, future, publicRate, pozRate, amount, 0, constants.ZERO_ADDRESS, true, 0, investorWhiteListId, { from: firstAddress })
                 ethPoolId = tx.logs[1].args[1].toString()
                 let newpools = await poolzBack.poolsCount.call()
                 assert.equal(newpools.toNumber(), 1, "Got 1 pool")

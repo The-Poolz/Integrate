@@ -1,6 +1,5 @@
-  
-const HodlersWhitelist = artifacts.require("HodlersWhitelist");
+const HodlersWhitelist = artifacts.require("HodlersWhitelist")
 
 module.exports = function (deployer) {
-  deployer.deploy(HodlersWhitelist);
-};
+  deployer.deploy(HodlersWhitelist)
+}

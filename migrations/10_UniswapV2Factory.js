@@ -1,6 +1,6 @@
-const UniswapV2Factory = artifacts.require("UniswapV2Factory");
+const UniswapV2Factory = artifacts.require("UniswapV2Factory")
+const constants = require("@openzeppelin/test-helpers/src/constants")
 
 module.exports = function (deployer) {
-    const feeAddress = "0x0000000000000000000000000000000000000000";
-    deployer.deploy(UniswapV2Factory, feeAddress);
-};
+    deployer.deploy(UniswapV2Factory, constants.ZERO_ADDRESS)
+}

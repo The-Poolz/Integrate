@@ -4,15 +4,14 @@ const Token = artifacts.require("Token")
 const WhiteList = artifacts.require('WhiteList')
 const { assert } = require('chai');
 const truffleAssert = require('truffle-assertions')
-const timeMachine = require('ganache-time-traveler');
-const BigNumber = require('bignumber.js');
+const timeMachine = require('ganache-time-traveler')
+const BigNumber = require('bignumber.js')
+const constants = require("@openzeppelin/test-helpers/src/constants")
 const BN = web3.utils.BN
 
 const pozRate = new BN('1000000000') // with decimal21 (shifter) 1 eth^18 = 1 token^6
 const publicRate = new BN('500000000') // with decimal21 (shifter) 1 eth^18 = 1 token^6
 const amount = new BN('3000000') //3 tokens for sale
-const invest = web3.utils.toWei('1', 'ether') //1eth
-const zero_address = "0x0000000000000000000000000000000000000000"
 
 const { createNewWhiteList } = require('./helper')
 
@@ -60,7 +59,7 @@ contract('Integration between HodlersWhitelist and PoolzBack', accounts => {
             const date = new Date()
             date.setHours(date.getHours() + 4)   // add 4 hours
             const finishTime = Math.floor(date.getTime() / 1000)
-            const tx = await poolzBack.CreatePool(testToken.address, finishTime, publicRate, pozRate, amount, 0, zero_address, true, 0, poolWhiteListId, { from: firstAddress }) // dsp pool
+            const tx = await poolzBack.CreatePool(testToken.address, finishTime, publicRate, pozRate, amount, 0, constants.ZERO_ADDRESS, true, 0, poolWhiteListId, { from: firstAddress }) // dsp pool
             poolId = tx.logs[1].args[1].toString()
             let newpools = await poolzBack.poolsCount.call()
             assert.equal(newpools.toNumber(), 1, "Got 1 pool")
