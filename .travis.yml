@@ -1,16 +1,9 @@
+os: linux
 dist: xenial
-sudo: required
 language: node_js
-node_js:
-  - "12.19.0"
-matrix:
-  include:
-    - os: linux
-      dist: xenial
-install:
-  - bash ./bin/travis-install.sh
+node_js: "14.18.2"
+install: npm i && npm i -g truffle
 script:
   - bash ./bin/build.sh
   - truffle run coverage --network development
-after_script:
- - bash <(curl -s https://codecov.io/bash)
+after_script: bash <(curl -s https://codecov.io/bash)

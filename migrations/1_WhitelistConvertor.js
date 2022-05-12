@@ -1,5 +1,6 @@
-const WhiteListConvertor = artifacts.require("WhiteListConvertor");
+const WhiteListConvertor = artifacts.require("WhiteListConvertor")
+const constants = require("@openzeppelin/test-helpers/src/constants")
 
 module.exports = function (deployer) {
-  deployer.deploy(WhiteListConvertor, '0x0000000000000000000000000000000000000000');
-};
+  deployer.deploy(WhiteListConvertor, constants.ZERO_ADDRESS)
+}

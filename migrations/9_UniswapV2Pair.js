@@ -1,6 +1,5 @@
-  
-const UniswapV2Pair = artifacts.require("UniswapV2Pair");
+const UniswapV2Pair = artifacts.require("UniswapV2Pair")
 
 module.exports = function (deployer) {
-  deployer.deploy(UniswapV2Pair);
-};
+  deployer.deploy(UniswapV2Pair)
+}

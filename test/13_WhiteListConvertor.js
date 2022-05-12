@@ -5,6 +5,7 @@ const WhiteListConvertor = artifacts.require("WhiteListConvertor")
 const { assert } = require('chai')
 const truffleAssert = require('truffle-assertions')
 const BigNumber = require("bignumber.js")
+const constants = require("@openzeppelin/test-helpers/src/constants")
 const BN = web3.utils.BN
 
 contract('Integration Between PoolzBack and WhiteListConvertor', accounts => {
@@ -35,9 +36,8 @@ contract('Integration Between PoolzBack and WhiteListConvertor', accounts => {
         const pozRate = new web3.utils.BN('1000000000')
         const publicRate = new web3.utils.BN('500000000')
         const amount = new BN('100000000')
-        const zero_address = "0x0000000000000000000000000000000000000000"// zero address = ETH main coin
         await testToken.approve(poolzBack.address, amount, { from: firstAddress })
-        const tx = await poolzBack.CreatePool(testToken.address, future, publicRate, pozRate, amount, 0, zero_address, true, 0, whiteListId, { from: firstAddress })
+        const tx = await poolzBack.CreatePool(testToken.address, future, publicRate, pozRate, amount, 0, constants.ZERO_ADDRESS, true, 0, whiteListId, { from: firstAddress })
         ethPoolId = tx.logs[1].args[1].toString()
         const result = await poolzBack.GetPoolExtraData(ethPoolId)
         assert.equal(whiteListId, result[1].toString())
@@ -98,7 +98,7 @@ contract('Integration Between PoolzBack and WhiteListConvertor', accounts => {
         await whiteListConvertor.LastRoundRegister(secondAddress, id, { from: contractAddress })
 
         const userLimit = await whiteListConvertor.Check(secondAddress, id)
-        const MAX_INT = '11579208923731619542357098500868790785326998466564056403945758400791312963993'// MAX_INT / 10
+        const MAX_INT = constants.MAX_UINT256 / 10
         assert.equal(userLimit.toString(), MAX_INT)
     })
 

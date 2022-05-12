@@ -12,9 +12,7 @@ const BN = web3.utils.BN
 const pozRate = new BN('1000000000') // with decimal21 (shifter) 1 eth^18 = 1 token^6
 const publicRate = new BN('500000000') // with decimal21 (shifter) 1 eth^18 = 1 token^6
 const amount = new BN('3000000') //3 tokens for sale
-const invest = web3.utils.toWei('1', 'ether') //1eth
-const zero_address = "0x0000000000000000000000000000000000000000"
-
+const constants = require("@openzeppelin/test-helpers/src/constants")
 const { createNewWhiteList } = require('./helper')
 
 contract('Integration between PoolzBack, Uniswap and Benefit', accounts => {
@@ -58,7 +56,7 @@ contract('Integration between PoolzBack, Uniswap and Benefit', accounts => {
             const lockedUntil = Math.floor(date.getTime() / 1000) + 60
             date.setDate(date.getDate() + 1)   // add a day
             const finishTime = Math.floor(date.getTime() / 1000) + 60
-            const tx = await poolzBack.CreatePool(testToken.address, finishTime, publicRate, pozRate, amount, lockedUntil, zero_address, true, 0, poolWhiteListId, { from: firstAddress })
+            const tx = await poolzBack.CreatePool(testToken.address, finishTime, publicRate, pozRate, amount, lockedUntil, constants.ZERO_ADDRESS, true, 0, poolWhiteListId, { from: firstAddress })
             poolId = tx.logs[1].args[1].toString()
             let newpools = await poolzBack.poolsCount.call()
             assert.equal(newpools.toNumber(), 1, "Got 1 pool")
@@ -151,7 +149,7 @@ contract('Integration between PoolzBack, Uniswap and Benefit', accounts => {
             result = await uniswapV2Pair.balanceOf(pozHolder)
             assert.equal(expectedBalance, result.toString(), 'check lp amount')
             //
-            await uniswapV2Pair.skim(pozHolder, {from: pozHolder})
+            await uniswapV2Pair.skim(pozHolder, { from: pozHolder })
             result = await benefit.CalcTotal(pozHolder)
             expectedBalance = '5000000'
             assert.equal(result.toString(), expectedBalance, 'check token amount')
