@@ -4,6 +4,7 @@ const Token = artifacts.require("ERC20Token")
 const { assert } = require('chai')
 const timeMachine = require('ganache-time-traveler')
 const BigNumber = require("bignumber.js")
+const truffleAssert = require('truffle-assertions')
 
 contract("Flex Staking with LockedDealV2 integration", accounts => {
     const projectOwner = accounts[0], amount = '1000000000000', APR = '50' // Annual Percentage Rate
@@ -99,6 +100,19 @@ contract("Flex Staking with LockedDealV2 integration", accounts => {
             assert.equal(parseInt(reward).toString(), actualRwd.toString(), 'invalid reward amount')
             assert.equal(parseInt(amounts[i]).toString(), actualLock.toString(), 'invalid locked amount')
         }
+    })
+
+
+    it('should revert when pause', async () => {
+        await rwdToken.approve(flexStaking.address, amount, { from: projectOwner })
+        await flexStaking.Pause()
+        await truffleAssert.reverts(flexStaking.CreateStakingPool(lockToken.address, rwdToken.address, amount, startTime, finishTime, APR, oneMonth, halfYear, minAmount, maxAmount, '0')
+            , 'Pausable: paused')
+        await timeMachine.advanceBlockAndSetTime(startTime)
+        await lockToken.transfer(user, amount)
+        await lockToken.approve(flexStaking.address, amount, { from: user })
+        await truffleAssert.reverts(flexStaking.Stake(poolId, minAmount, halfYear, { from: user }), 'Pausable: paused')
+        await flexStaking.Unpause()
     })
 
     it('should withdraw tokens', async () => {
