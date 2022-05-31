@@ -5,7 +5,7 @@ const { assert } = require('chai')
 const timeMachine = require('ganache-time-traveler')
 const BigNumber = require("bignumber.js")
 
-contract("Flex Staking with LockedDeal-V2 Integration", accounts => {
+contract("Flex Staking with LockedDealV2 integration", accounts => {
     const projectOwner = accounts[0], amount = '1000000000000', APR = '50' // Annual Percentage Rate
     const minAmount = '10000000', maxAmount = '1000000000', user = accounts[5]
     const oneMonth = 60 * 60 * 24 * 30 // seconds
