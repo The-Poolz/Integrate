@@ -87,7 +87,7 @@ module.exports = {
     solc: {
       settings: {
         evmVersion: "istanbul",
-        optimizer: { enabled: true, runs: 9999999 },
+        optimizer: { enabled: true, runs: 200, details: { yul: true } },
       },     
       version: "pragma",
       docker: false,

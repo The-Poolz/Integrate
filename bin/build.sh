@@ -34,5 +34,7 @@ cp -a ./node_modules/poolz-whitelist-converter/test/. ./test/12_WhitelistConvert
 
 cp -a ./node_modules/poolz-locked-deal-v2/test/. ./test/14_LockedDealV2
 
+cp -a ./node_modules/poolz-flex-staking/test/. ./test/FlexStaking
+
 #temporary fix for naming error of TestToken in Benefit tests
 #sed -i 's/"TestToken"/"Token"/g' test/4_Benefit/test.js
