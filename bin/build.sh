@@ -1,21 +1,3 @@
-cp -a ./node_modules/poolz-back/contracts/. ./contracts/PoolzBack
-
-cp -a ./node_modules/poolz-locked-deal/contracts/. ./contracts/LockedDeal
-
-cp -a ./node_modules/poolz-locked-deal-v2/contracts/. ./contracts/LockedDealV2
-
-cp -a ./node_modules/poolz-whitelist/contracts/. ./contracts/WhiteList
-
-cp -a ./node_modules/poolz-benefit/contracts/. ./contracts/Benefit
-
-cp -a ./node_modules/poolz-hodlers-whitelist/contracts/. ./contracts/HodlersWhitelist
-
-cp -a ./node_modules/poolz-envelop-token/contracts/. ./contracts/EnvelopToken
-
-cp -a ./node_modules/@uniswap/v2-core/contracts/. ./contracts/Uniswap-V2-Core
-
-cp -a ./node_modules/poolz-whitelist-converter/contracts/. ./contracts/WhitelistConvertor
-
 cp -a ./node_modules/poolz-back/test/General/. ./test/01_PoolzBack
 
 cp -a ./node_modules/poolz-whitelist/test/. ./test/02_WhiteList
