@@ -76,7 +76,9 @@ contract('Integration between PoolzBack, Uniswap and Benefit', accounts => {
             await uniswapV2Factory.createPair(pozToken.address, testToken.address, { from: firstAddress })
             const pair = await uniswapV2Factory.getPair(pozToken.address, testToken.address)
             uniswapV2Pair = await UniswapV2Pair.at(pair)
-            const [token0, token1] = [pozToken.address, testToken.address]
+            const [token0, token1] = parseInt(pozToken.address) < parseInt(testToken.address)
+                ? [pozToken.address, testToken.address]
+                : [testToken.address, pozToken.address]
             assert.equal(token0, (await uniswapV2Pair.token0()), 'check first token address')
             assert.equal(token1, (await uniswapV2Pair.token1()), 'check second token address')
         })
