@@ -16,6 +16,8 @@ cp -a ./node_modules/@uniswap/v2-core/contracts/. ./contracts/Uniswap-V2-Core
 
 cp -a ./node_modules/poolz-whitelist-converter/contracts/. ./contracts/WhitelistConvertor
 
+cp -a ./node_modules/poolz-flex-staking/contracts/. ./contracts/FlexStaking
+
 cp -a ./node_modules/poolz-back/test/General/. ./test/01_PoolzBack
 
 cp -a ./node_modules/poolz-whitelist/test/. ./test/02_WhiteList
