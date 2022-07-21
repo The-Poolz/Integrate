@@ -25,8 +25,6 @@ contract("Flex Staking with LockedDealV2 integration", accounts => {
         date.setDate(date.getDate() + 365)   // add a year
         finishTime = Math.floor(date.getTime() / 1000) + 60
         await flexStaking.SetLockedDealAddress(lockedDeal.address)
-        await lockedDeal.swapTokenFilter()
-        await lockedDeal.swapUserFilter()
     })
 
     it('should create new pool', async () => {
