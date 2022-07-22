@@ -9,7 +9,7 @@ const truffleAssert = require('truffle-assertions')
 const BigNumber = require("bignumber.js")
 const timeMachine = require('ganache-time-traveler')
 BigNumber.config({ EXPONENTIAL_AT: 1e+9 })
-const {uintMinusOne} = require("./helper/index")
+const { uintMinusOne } = require("./helper/index")
 BigNumber.config({ EXPONENTIAL_AT: 1e+9 })
 
 contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts => {
@@ -42,11 +42,11 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
                 tokenName,
                 tokenSymbol,
                 cap.toString(),
-                decimals, 
+                decimals,
                 firstAddress,
                 lockedDealContract.address,
                 whitelistContract.address,
-                {from: firstAddress}
+                { from: firstAddress }
             )
             // const tx = await web3.eth.getTransactionReceipt(token.transactionHash)
             // console.log(tx)
@@ -257,16 +257,16 @@ contract('Integration Between Envelop Token, WhiteList and LockedDeal', accounts
         })
 
         it('should fail to transfer token before FinishTime to Non Whitelisted Address', async () => {
-            const tx = token.transfer(thirdAddress, amount.toString(), {from: secondAddress})
-            await truffleAssert.reverts(tx, "Sorry, no alocation for Subject")            
+            const tx = token.transfer(thirdAddress, amount.toString(), { from: secondAddress })
+            await truffleAssert.reverts(tx, "Sorry, no alocation for Subject")
         })
 
         it('should successfully transfer tokens to whitelisted address before FinishTime', async () => {
             await whitelistContract.AddAddress(whitelistId, [secondAddress, thirdAddress], [amount.toString(), amount.toString()])
-            await token.transfer(thirdAddress, amount.toString(), {from: secondAddress})
+            await token.transfer(thirdAddress, amount.toString(), { from: secondAddress })
             const balance3 = await token.balanceOf(thirdAddress)
             assert.equal(balance3.toString(), amount.multipliedBy(2).toString())
-            await token.transfer(secondAddress, amount.toString(), {from: thirdAddress})
+            await token.transfer(secondAddress, amount.toString(), { from: thirdAddress })
             const balance2 = await token.balanceOf(secondAddress)
             assert.equal(balance2.toString(), amount.toString())
         })
