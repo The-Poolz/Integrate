@@ -2,26 +2,32 @@
 pragma solidity ^0.8.0;
 
 import "./LockedPoolz.sol";
+import "poolz-helper-v2/contracts/Array.sol";
 
-contract LockedControl is LockedPoolz{
-
-    event MassPoolsCreated(uint256 FirstPoolId, uint256 LastPoolId);
-
-    function TransferPoolOwnership(
-        uint256 _PoolId,
-        address _NewOwner
-    ) external isPoolValid(_PoolId) isPoolOwner(_PoolId) notZeroAddress(_NewOwner) {
+contract LockedControl is LockedPoolz {
+    function PoolTransfer(uint256 _PoolId, address _NewOwner)
+        external
+        isPoolValid(_PoolId)
+        isPoolOwner(_PoolId)
+        notZeroAddress(_NewOwner)
+    {
         Pool storage pool = AllPoolz[_PoolId];
-        pool.Owner = _NewOwner;
-        uint256[] storage array = MyPoolz[msg.sender];
-        for(uint i=0 ; i<array.length ; i++){
-            if(array[i] == _PoolId){
-                array[i] = array[array.length - 1];
-                array.pop();
-            }
-        }
-        MyPoolz[_NewOwner].push(_PoolId);
-        emit PoolOwnershipTransfered(_PoolId, _NewOwner, msg.sender);
+        require(_NewOwner != pool.Owner, "Can't be the same owner");
+        require(
+            pool.FinishTime > block.timestamp,
+            "Can't create with past finish time"
+        );
+        uint256 newPoolId = CreatePool(
+            pool.Token,
+            pool.StartTime,
+            pool.FinishTime,
+            pool.StartAmount,
+            _NewOwner
+        );
+        pool.StartAmount = 0;
+        AllPoolz[newPoolId].DebitedAmount = pool.DebitedAmount;
+        pool.DebitedAmount = 0;
+        emit PoolTransferred(newPoolId, _PoolId, _NewOwner, msg.sender);
     }
 
     function SplitPoolAmount(
@@ -38,13 +44,12 @@ contract LockedControl is LockedPoolz{
         uint256 _Amount,
         address _Spender
     ) external isPoolValid(_PoolId) isPoolOwner(_PoolId) isLocked(_PoolId) notZeroAddress(_Spender) {
-        Pool storage pool = AllPoolz[_PoolId];
-        pool.Allowance[_Spender] = _Amount;
+        Allowance[_PoolId][_Spender] = _Amount;
         emit PoolApproval(_PoolId, _Spender, _Amount);
     }
 
     function GetPoolAllowance(uint256 _PoolId, address _Address) public view isPoolValid(_PoolId) returns(uint256){
-        return AllPoolz[_PoolId].Allowance[_Address];
+        return Allowance[_PoolId][_Address];
     }
 
     function SplitPoolAmountFrom(
@@ -53,9 +58,8 @@ contract LockedControl is LockedPoolz{
         address _Address
     ) external isPoolValid(_PoolId) isAllowed(_PoolId, _Amount) isLocked(_PoolId) returns(uint256) {
         uint256 poolId = SplitPool(_PoolId, _Amount, _Address);
-        Pool storage pool = AllPoolz[_PoolId];
-        uint256 _NewAmount = pool.Allowance[msg.sender] - _Amount;
-        pool.Allowance[_Address]  = _NewAmount;
+        uint256 _NewAmount = Allowance[_PoolId][msg.sender] - _Amount;
+        Allowance[_PoolId][msg.sender]  = _NewAmount;
         return poolId;
     }
 
@@ -86,7 +90,7 @@ contract LockedControl is LockedPoolz{
         require(_Owner.length == _FinishTime.length, "Date Array Invalid");
         require(_StartTime.length == _FinishTime.length, "Date Array Invalid");
         require(_Owner.length == _StartAmount.length, "Amount Array Invalid");
-        TransferInToken(_Token, msg.sender, getArraySum(_StartAmount));
+        TransferInToken(_Token, msg.sender, Array.getArraySum(_StartAmount));
         if(WhiteList_Address != address(0) && !(isUserWithoutFee(msg.sender) || isTokenWithoutFee(_Token))){
             PayFee(Fee * _Owner.length);
         }
@@ -111,7 +115,7 @@ contract LockedControl is LockedPoolz{
     {
         require(_Owner.length == _StartAmount.length, "Amount Array Invalid");
         require(_FinishTime.length == _StartTime.length, "Date Array Invalid");
-        TransferInToken(_Token, msg.sender, getArraySum(_StartAmount) * _FinishTime.length);
+        TransferInToken(_Token, msg.sender, Array.getArraySum(_StartAmount) * _FinishTime.length);
         uint256 firstPoolId = Index;
         if(WhiteList_Address != address(0) && !(isUserWithoutFee(msg.sender) || isTokenWithoutFee(_Token))){
             PayFee(Fee * _Owner.length * _FinishTime.length);
@@ -123,13 +127,5 @@ contract LockedControl is LockedPoolz{
         }
         uint256 lastPoolId = Index - 1;
         emit MassPoolsCreated(firstPoolId, lastPoolId);
-    }
-
-    function getArraySum(uint256[] calldata _array) internal pure returns(uint256) {
-        uint256 sum = 0;
-        for(uint i=0 ; i<_array.length ; i++){
-            sum = sum + _array[i];
-        }
-        return sum;
     }
 }
