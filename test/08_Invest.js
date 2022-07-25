@@ -225,4 +225,12 @@ contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) 
             await truffleAssert.reverts(poolzBack.InvestERC20(ercPoolId, fakeInvestorAmt, { from: fakeInvestor }), 'Sorry, no alocation for Subject')
         })
     })
+
+    describe('should get info', async () => {
+        it('should get investment ids', async () => {
+            const res = await poolzBack.GetMyInvestmentIds({ from: ethInvestor[0] })
+            assert.equal(2, res.length)
+            assert.equal([0, 4].toString(), res.toString())
+        })
+    })
 })
