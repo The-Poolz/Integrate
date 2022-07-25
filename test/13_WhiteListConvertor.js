@@ -185,5 +185,28 @@ contract('Integration Between PoolzBack and WhiteListConvertor', accounts => {
             assert.notEqual(res1.toString(), res.toString());   
             assert.equal(0, res.toString());   
         })
+
+        it('should change a creator', async () => {
+            const previousContract = await whiteList.WhitelistSettings(whiteListId);
+            await whiteList.ChangeCreator(whiteListId, accounts[5], { from: secondAddress })
+            const newContract = await whiteList.WhitelistSettings(whiteListId);
+            assert.notEqual(previousContract.Creator, newContract.Creator)
+            assert.equal(newContract.Creator, accounts[5])
+        })
+    })
+
+    describe('should fail', async () => {
+        it('should fail because only contract can call this', async () => {
+            await truffleAssert.reverts(whiteList.LastRoundRegister(secondAddress, 1, { from: accounts[9] }), 'Only the Contract can call this')
+            await truffleAssert.reverts(whiteList.Register(secondAddress, 1, 1000, { from: accounts[9] }), 'Only the Contract can call this')
+        })
+
+        it('should fail with incorrect number of users', async () => {
+            await truffleAssert.reverts(whiteList.AddAddress(whiteListId, [firstAddress], ['100000000', '100'], { from: accounts[5] }), 'Number of users should be same as the amount length')
+        })
+
+        it('should fail with need in something', async () => {
+            await truffleAssert.reverts(whiteList.AddAddress(whiteListId, [], [], { from: accounts[5] }), 'Need something...')
+        })
     })
 })
