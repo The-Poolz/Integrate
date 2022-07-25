@@ -274,6 +274,11 @@ contract("Integration Between PoolzBack and WhiteListConvertor", (accounts) => {
     it("should withdraw eth fee", async () => {
       await whiteList.WithdrawETHFee(secondAddress);
     });
+
+    it("should return true so whitelist is ready", async () => {
+      const res = await whiteList.isWhiteListReady(whiteListId);
+      assert.equal(true, res);
+    });
   });
 
   describe("should fail", async () => {
@@ -320,12 +325,16 @@ contract("Integration Between PoolzBack and WhiteListConvertor", (accounts) => {
     });
 
     it("should return nothing in check", async () => {
-        await whiteList.Check(accounts[5], 0)
-    })
+      await whiteList.Check(accounts[5], 0);
+    });
 
-    it("should return true so whitelist is ready", async () => {
-        const res = await whiteList.isWhiteListReady(whiteListId)
-        assert.equal(true, res)
-    })
+    it("should fail with only creator can access", async () => {
+      await truffleAssert.reverts(
+        whiteList.ChangeCreator(whiteListId, accounts[5], {
+          from: accounts[7],
+        }),
+        "Only creator can access"
+      );
+    });
   });
 });
