@@ -147,5 +147,38 @@ contract('Integration Between PoolzBack and WhiteListConvertor', accounts => {
                 "Only creator can access"
             )
         })
+
+        it('should set max users limit', async () => {
+            const previousLimit = await whiteList.MaxUsersLimit()
+            await whiteList.setMaxUsersLimit(100)
+            const newLimit = await whiteList.MaxUsersLimit()
+            assert.equal(100, newLimit)
+            assert.notEqual(previousLimit, newLimit)
+        })
+
+        it('should set whitelist cost', async () => {
+            const previousCost = await whiteList.WhiteListCost()
+            await whiteList.setWhiteListCost(1)
+            const newCost = await whiteList.WhiteListCost()
+            assert.equal(1, newCost)
+            assert.notEqual(previousCost, newCost)
+        })
+
+        it('should change a contract', async () => {
+            const previousContract = await whiteList.WhitelistSettings(whiteListId);
+            await whiteList.ChangeContract(whiteListId, secondAddress, { from: secondAddress })
+            const newContract = await whiteList.WhitelistSettings(whiteListId);
+            assert.notEqual(previousContract.Contract, newContract.Contract)
+            assert.equal(newContract.Contract, secondAddress)
+        })
+
+        it('should remove a contract', async () => {
+            await whiteList.AddAddress(whiteListId, [firstAddress], ['100000000'], { from: secondAddress })
+            const res1 = await whiteList.WhitelistDB(whiteListId, firstAddress);
+            await whiteList.RemoveAddress(whiteListId, [firstAddress], { from: secondAddress })
+            const res = await whiteList.WhitelistDB(whiteListId, firstAddress);     
+            assert.notEqual(res1.toString(), res.toString());   
+            assert.equal(0, res.toString());   
+        })
     })
 })
