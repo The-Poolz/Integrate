@@ -319,8 +319,13 @@ contract("Integration Between PoolzBack and WhiteListConvertor", (accounts) => {
       );
     });
 
-    it("should fail with ether not enough", async () => {
-        await whiteList.Check(accounts[5], 0);
+    it("should return nothing in check", async () => {
+        await whiteList.Check(accounts[5], 0)
+    })
+
+    it("should return true so whitelist is ready", async () => {
+        const res = await whiteList.isWhiteListReady(whiteListId)
+        assert.equal(true, res)
     })
   });
 });
