@@ -318,5 +318,9 @@ contract("Integration Between PoolzBack and WhiteListConvertor", (accounts) => {
         "ether not enough"
       );
     });
+
+    it("should fail with ether not enough", async () => {
+        await whiteList.Check(accounts[5], 0);
+    })
   });
 });
