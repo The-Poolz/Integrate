@@ -102,6 +102,11 @@ contract('Integration Between PoolzBack and WhiteListConvertor', accounts => {
         assert.equal(userLimit.toString(), MAX_INT)
     })
 
+    it('should return nothing, because id is 0', async () => {
+        await whiteList.LastRoundRegister(secondAddress, 0, { from: accounts[9] })
+        await whiteList.Register(secondAddress, 0,  1000, { from: accounts[9] })
+    })
+
     describe('should invoke only by creator', async () => {
         let now, timestamp, whiteListCost
 
