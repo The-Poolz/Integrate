@@ -280,4 +280,14 @@ contract("Integration between PoolzBack, Uniswap and Benefit", (accounts) => {
       await timeMachine.advanceBlockAndSetTime(Math.floor(Date.now() / 1000));
     });
   });
+
+  describe("Setting up Benefit Contract", () => {
+    it('reset a check count', async () => {
+      const previousCount = await benefit.ChecksCount();
+      await benefit.RemoveAll();
+      const newCount = await benefit.ChecksCount();
+      assert.notEqual(previousCount, newCount)
+      assert.equal(0, newCount)
+    })
+  });
 });
