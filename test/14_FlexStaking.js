@@ -183,6 +183,25 @@ contract("Flex Staking with LockedDealV2 integration", (accounts) => {
     );
   });
 
+  it("should stake with different tokens", async () => {
+    const date = new Date()
+    const startTime = Math.floor(date.getTime() / 1000) + 60
+    date.setDate(date.getDate() + 365)   // add a year
+    const finishTime = Math.floor(date.getTime() / 1000) + 60
+    await timeMachine.advanceBlockAndSetTime(Date.now());
+    await lockToken.approve(flexStaking.address, 10000000, { from: projectOwner })
+    const tx = await flexStaking.CreateStakingPool(lockToken.address, lockToken.address, 10000000, startTime, finishTime, APR, oneMonth, halfYear, minAmount, maxAmount, '0')
+    const pool = tx.logs[tx.logs.length - 1].args
+    poolId2 = pool.Id
+
+    await timeMachine.advanceBlockAndSetTime(startTime);
+    const amount = minAmount;
+    const duration = halfYear;
+    await lockToken.transfer(user, amount);
+    await lockToken.approve(flexStaking.address, amount, { from: user });
+    await flexStaking.Stake(poolId2, amount, duration, { from: user });
+  });
+
   after(async () => {
     await timeMachine.advanceBlockAndSetTime(Math.floor(Date.now() / 1000));
   });
