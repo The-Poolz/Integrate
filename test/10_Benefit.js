@@ -14,6 +14,7 @@ const publicRate = new BN("500000000"); // with decimal21 (shifter) 1 eth^18 = 1
 const amount = new BN("3000000"); //3 tokens for sale
 const constants = require("@openzeppelin/test-helpers/src/constants");
 const { createNewWhiteList } = require("./helper");
+const { equal } = require("assert");
 
 contract("Integration between PoolzBack, Uniswap and Benefit", (accounts) => {
   let poolzBack,
@@ -282,12 +283,19 @@ contract("Integration between PoolzBack, Uniswap and Benefit", (accounts) => {
   });
 
   describe("Setting up Benefit Contract", () => {
-    it('reset a check count', async () => {
+    it('should reset a check count', async () => {
       const previousCount = await benefit.ChecksCount();
       await benefit.RemoveAll();
       const newCount = await benefit.ChecksCount();
       assert.notEqual(previousCount, newCount)
       assert.equal(0, newCount)
+    })
+
+    it('should add new staking', async () => {
+      const previousCount = await benefit.ChecksCount();
+      await benefit.AddNewStaking(poolzBack.address);
+      const newCount = await benefit.ChecksCount();
+      equal((previousCount.toNumber()) + 1, newCount);
     })
   });
 });
