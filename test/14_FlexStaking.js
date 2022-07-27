@@ -48,7 +48,7 @@ contract("Flex Staking with LockedDealV2 integration", (accounts) => {
 
       await lockToken.approve(flexStaking.address, amount, { from: projectOwner })
       const tx2 = await flexStaking.CreateStakingPool(lockToken.address, lockToken.address, amount, startTime, finishTime, APR, oneMonth, halfYear, minAmount, maxAmount, '0')
-      const pool2 = tx2.logs[tx.logs.length - 1].args
+      const pool2 = tx2.logs[tx2.logs.length - 1].args
       poolId2 = pool2.Id
   })
 
@@ -64,12 +64,11 @@ contract("Flex Staking with LockedDealV2 integration", (accounts) => {
   })
 
   it("should stake with different tokens", async () => {
-    await timeMachine.advanceBlockAndSetTime(startTime)
     const amount = minAmount;
     const duration = halfYear;
-    await lockToken.transfer(user, amount);
+    await lockToken.transfer(accounts[9], amount);
     await lockToken.approve(flexStaking.address, amount, { from: user });
-    await flexStaking.Stake(poolId2, amount, duration, { from: user });
+    await flexStaking.Stake(poolId2, amount, duration, { from: accounts[9] });
   });
 
   it("should return reward tokens", async () => {
