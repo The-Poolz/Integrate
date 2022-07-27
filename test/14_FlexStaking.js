@@ -7,71 +7,68 @@ const BigNumber = require("bignumber.js");
 const truffleAssert = require("truffle-assertions");
 
 contract("Flex Staking with LockedDealV2 integration", (accounts) => {
-  const projectOwner = accounts[0],
-    amount = "1000000000000",
-    APR = "50"; // Annual Percentage Rate
-  const minAmount = "10000000",
-    maxAmount = "1000000000",
-    user = accounts[5];
-  const oneMonth = 60 * 60 * 24 * 30; // seconds
-  const twoMonths = 60 * 60 * 24 * 60;
-  const halfYear = "15768000";
-  const date = new Date();
-  const startTime = Math.floor(date.getTime() / 1000) + 60;
-  let finishTime, poolId, lockId, rwdId;
-  let flexStaking, rwdToken, lockToken, lockedDeal;
+  const projectOwner = accounts[0], amount = '1000000000000', APR = '50' // Annual Percentage Rate
+  const minAmount = '10000000', maxAmount = '1000000000', user = accounts[5]
+  const oneMonth = 60 * 60 * 24 * 30 // seconds
+  const twoMonths = 60 * 60 * 24 * 60
+  const halfYear = '15768000'
+  const date = new Date()
+  const startTime = Math.floor(date.getTime() / 1000) + 60
+  let finishTime, poolId, lockId, rwdId, poolId2
+  let flexStaking, rwdToken, lockToken, lockedDeal
 
   before(async () => {
-    flexStaking = await FlexStakingUser.new();
-    rwdToken = await Token.new("REWARD", "REWARD");
-    lockToken = await Token.new("LOCK", "LOCK");
-    lockedDeal = await LockedDeal.new();
-    date.setDate(date.getDate() + 365); // add a year
-    finishTime = Math.floor(date.getTime() / 1000) + 60;
-    await flexStaking.SetLockedDealAddress(lockedDeal.address);
-  });
+      flexStaking = await FlexStakingUser.new()
+      rwdToken = await Token.new("REWARD", "REWARD")
+      lockToken = await Token.new("LOCK", "LOCK")
+      lockedDeal = await LockedDeal.new()
+      date.setDate(date.getDate() + 365)   // add a year
+      finishTime = Math.floor(date.getTime() / 1000) + 60
+      await flexStaking.SetLockedDealAddress(lockedDeal.address)
+  })
 
-  it("should create new pool", async () => {
-    await rwdToken.approve(flexStaking.address, amount, { from: projectOwner });
-    const tx = await flexStaking.CreateStakingPool(
-      lockToken.address,
-      rwdToken.address,
-      amount,
-      startTime,
-      finishTime,
-      APR,
-      oneMonth,
-      halfYear,
-      minAmount,
-      maxAmount,
-      "0"
-    );
-    const pool = tx.logs[tx.logs.length - 1].args;
-    assert.equal(projectOwner, pool.Owner, "invalid owner");
-    assert.equal("1", pool.Id, "invalid pool id");
-    assert.equal(lockToken.address, pool.LockedToken, "invalid lock token");
-    assert.equal(rwdToken.address, pool.RewardToken, "invalid reward token");
-    assert.equal(amount, pool.TokensAmount, "invalid tokens amount");
-    assert.equal(startTime, pool.StartTime, "invalid start time");
-    assert.equal(finishTime, pool.FinishTime, "invalid finish time");
-    assert.equal(APR, pool.APR, "invalid APR");
-    assert.equal(oneMonth, pool.MinDuration, "invalid min duration");
-    assert.equal(halfYear, pool.MaxDuration, "invalid max duration");
-    assert.equal(minAmount, pool.MinAmount, "invalid min amount");
-    assert.equal(maxAmount, pool.MaxAmount, "invalid max amount");
-    assert.equal("0", pool.EarlyWithdraw, "invalid min early withdraw");
-    poolId = pool.Id;
-  });
+  it('should create new pool', async () => {
+      await rwdToken.approve(flexStaking.address, amount, { from: projectOwner })
+      const tx = await flexStaking.CreateStakingPool(lockToken.address, rwdToken.address, amount, startTime, finishTime, APR, oneMonth, halfYear, minAmount, maxAmount, '0')
+      const pool = tx.logs[tx.logs.length - 1].args
+      assert.equal(projectOwner, pool.Owner, 'invalid owner')
+      assert.equal('1', pool.Id, 'invalid pool id')
+      assert.equal(lockToken.address, pool.LockedToken, 'invalid lock token')
+      assert.equal(rwdToken.address, pool.RewardToken, 'invalid reward token')
+      assert.equal(amount, pool.TokensAmount, 'invalid tokens amount')
+      assert.equal(startTime, pool.StartTime, 'invalid start time')
+      assert.equal(finishTime, pool.FinishTime, 'invalid finish time')
+      assert.equal(APR, pool.APR, 'invalid APR')
+      assert.equal(oneMonth, pool.MinDuration, 'invalid min duration')
+      assert.equal(halfYear, pool.MaxDuration, 'invalid max duration')
+      assert.equal(minAmount, pool.MinAmount, 'invalid min amount')
+      assert.equal(maxAmount, pool.MaxAmount, 'invalid max amount')
+      assert.equal('0', pool.EarlyWithdraw, 'invalid min early withdraw')
+      poolId = pool.Id
 
-  it("should stake", async () => {
-    await timeMachine.advanceBlockAndSetTime(startTime);
+      await lockToken.approve(flexStaking.address, amount, { from: projectOwner })
+      const tx2 = await flexStaking.CreateStakingPool(lockToken.address, lockToken.address, amount, startTime, finishTime, APR, oneMonth, halfYear, minAmount, maxAmount, '0')
+      const pool2 = tx2.logs[tx.logs.length - 1].args.Id
+      poolId2 = pool2.Id
+  })
+
+  it('should stake', async () => {
+      await timeMachine.advanceBlockAndSetTime(startTime)
+      const amount = minAmount
+      const duration = halfYear
+      await lockToken.transfer(user, amount)
+      await lockToken.approve(flexStaking.address, amount, { from: user })
+      await flexStaking.Stake(poolId, amount, duration, { from: user })
+      rwdId = '0'
+      lockId = '1'
+  })
+
+  it("should stake with different tokens", async () => {
     const amount = minAmount;
     const duration = halfYear;
     await lockToken.transfer(user, amount);
     await lockToken.approve(flexStaking.address, amount, { from: user });
-    await flexStaking.Stake(poolId, amount, duration, { from: user });
-    rwdId = "0";
-    lockId = "1";
+    await flexStaking.Stake(poolId2, amount, duration, { from: user });
   });
 
   it("should return reward tokens", async () => {
