@@ -48,7 +48,7 @@ contract("Flex Staking with LockedDealV2 integration", (accounts) => {
 
       await lockToken.approve(flexStaking.address, amount, { from: projectOwner })
       const tx2 = await flexStaking.CreateStakingPool(lockToken.address, lockToken.address, amount, startTime, finishTime, APR, oneMonth, halfYear, minAmount, maxAmount, '0')
-      const pool2 = tx2.logs[tx.logs.length - 1].args.Id
+      const pool2 = tx2.logs[tx.logs.length - 1].args
       poolId2 = pool2.Id
   })
 
