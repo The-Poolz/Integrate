@@ -1,6 +1,7 @@
 const ThePoolz = artifacts.require("ThePoolz")
 const Token = artifacts.require("Token")
 const WhiteList = artifacts.require('WhiteList')
+const LockedDeal = artifacts.require("LockedDeal")
 const { assert, should } = require('chai')
 const truffleAssert = require('truffle-assertions')
 const BigNumber = require('bignumber.js')
@@ -15,7 +16,7 @@ const invest = web3.utils.toWei('1', 'ether') //1eth
 const { createNewWhiteList } = require('./helper')
 
 contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) => {
-    let poolzBack, ethTestToken, ercTestToken, whiteList, mainCoin, firstAddress = accounts[0]
+    let poolzBack, ethTestToken, ercTestToken, whiteList, lockedDeal, mainCoin, firstAddress = accounts[0]
     let tokenWhiteListId, mainCoinWhiteListId
     let ethInvestor, ethAllowance, ercInvestor, ercAllowance
     let ethPoolId, ercPoolId
@@ -26,6 +27,7 @@ contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) 
     before(async () => {
         poolzBack = await ThePoolz.deployed()
         whiteList = await WhiteList.deployed()
+        lockedDeal = await LockedDeal.new()
         ethTestToken = await Token.new('TestToken', 'TEST')
         ercTestToken = await Token.new('TestToken', 'TEST')
         mainCoin = await Token.new('TestMainToken', 'TESTM')
@@ -231,6 +233,28 @@ contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) 
             const res = await poolzBack.GetMyInvestmentIds({ from: ethInvestor[0] })
             assert.equal(2, res.length)
             assert.equal([0, 4].toString(), res.toString())
+        })
+
+        it('should return OutOfstock', async () => {
+            await poolzBack.SwitchLockedDealForTlp();
+            await poolzBack.SetLockedDealAddress(lockedDeal.address)
+            const mainCoinDecimals = await mainCoin.decimals()
+            const tx3 = await createNewWhiteList(whiteList, poolzBack.address, firstAddress)
+            const investorWhiteListId = tx3.logs[0].args._WhiteListCount.toNumber()
+            await ercTestToken.approve(poolzBack.address, 100000, { from: firstAddress })
+            const date = new Date()
+            date.setDate(date.getDate() + 1)   // add a day
+            const future = Math.floor(date.getTime() / 1000) + 60
+            const tokenDecimals = await ercTestToken.decimals()
+            const d21PozRate = ercPozRate.mul(new BN('10').pow(new BN(21 + tokenDecimals.toNumber() - mainCoinDecimals.toNumber())))
+            const d21PublicRate = ercPublicRate.mul(new BN('10').pow(new BN(21 + tokenDecimals.toNumber() - mainCoinDecimals.toNumber())))
+            const tx = await poolzBack.CreatePool(ercTestToken.address, future, d21PublicRate, d21PozRate, 100000, future, mainCoin.address, true, 0, investorWhiteListId, { from: firstAddress })
+            const ercPoolId = tx.logs[1].args[1].toString()
+            await whiteList.AddAddress(investorWhiteListId, [firstAddress], [1000], { from: firstAddress })
+            await mainCoin.approve(poolzBack.address, 1000, { from: firstAddress })
+            await poolzBack.InvestERC20(ercPoolId, 1000, { from: firstAddress })
+            const res = await poolzBack.GetPoolStatus(ercPoolId)
+            assert.equal(res.toString(), '3')
         })
     })
 })
