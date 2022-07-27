@@ -45,11 +45,6 @@ contract("Flex Staking with LockedDealV2 integration", (accounts) => {
       assert.equal(maxAmount, pool.MaxAmount, 'invalid max amount')
       assert.equal('0', pool.EarlyWithdraw, 'invalid min early withdraw')
       poolId = pool.Id
-
-      await lockToken.approve(flexStaking.address, amount, { from: projectOwner })
-      const tx2 = await flexStaking.CreateStakingPool(lockToken.address, lockToken.address, amount, startTime, finishTime, APR, oneMonth, halfYear, minAmount, maxAmount, '0')
-      const pool2 = tx2.logs[tx2.logs.length - 1].args
-      poolId2 = pool2.Id
   })
 
   it('should stake', async () => {
@@ -62,14 +57,6 @@ contract("Flex Staking with LockedDealV2 integration", (accounts) => {
       rwdId = '0'
       lockId = '1'
   })
-
-  it("should stake with different tokens", async () => {
-    const amount = minAmount;
-    const duration = halfYear;
-    await lockToken.transfer(user, amount);
-    await lockToken.approve(flexStaking.address, amount, { from: user });
-    await flexStaking.Stake(poolId2, amount, duration, { from: user });
-  });
 
   it("should return reward tokens", async () => {
     await timeMachine.advanceBlockAndSetTime(finishTime);
