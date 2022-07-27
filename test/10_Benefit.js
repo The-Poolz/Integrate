@@ -198,6 +198,11 @@ contract("Integration between PoolzBack, Uniswap and Benefit", (accounts) => {
     });
 
     it("calculation of tokens when change liquidity", async () => {
+      it('should return whether is POZ holder', async () => {
+        const res = await benefit.IsPOZHolder(accounts[3])
+        console.log(res)
+      })
+      
       await benefit.AddNewLpCheck(pozToken.address, uniswapV2Pair.address, {
         from: firstAddress,
       });
