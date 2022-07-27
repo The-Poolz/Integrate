@@ -64,6 +64,7 @@ contract("Flex Staking with LockedDealV2 integration", (accounts) => {
   })
 
   it("should stake with different tokens", async () => {
+    await timeMachine.advanceBlockAndSetTime(startTime)
     const amount = minAmount;
     const duration = halfYear;
     await lockToken.transfer(user, amount);
