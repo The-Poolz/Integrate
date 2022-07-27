@@ -278,6 +278,7 @@ contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) 
         })
 
         it('should return Close', async () => {
+            await timeMachine.advanceBlockAndSetTime(Date.now())
             await poolzBack.SetLockedDealAddress(lockedDeal.address)
             const mainCoinDecimals = await mainCoin.decimals()
             const tx3 = await createNewWhiteList(whiteList, poolzBack.address, firstAddress)
@@ -287,7 +288,6 @@ contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) 
             date.setDate(date.getDate() + 1)   // add a day
             const future = Math.floor(date.getTime() / 1000) + 60
             const tokenDecimals = await ercTestToken.decimals()
-            await timeMachine.advanceBlockAndSetTime(Date.now())
             const d21PozRate = ercPozRate.mul(new BN('10').pow(new BN(21 + tokenDecimals.toNumber() - mainCoinDecimals.toNumber())))
             const d21PublicRate = ercPublicRate.mul(new BN('10').pow(new BN(21 + tokenDecimals.toNumber() - mainCoinDecimals.toNumber())))
             const tx = await poolzBack.CreatePool(ercTestToken.address, future, d21PublicRate, d21PozRate, 100000, future, mainCoin.address, true, 0, investorWhiteListId, { from: firstAddress })
