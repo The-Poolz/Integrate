@@ -28,6 +28,7 @@ contract("Flex Staking with LockedDealV2 integration", (accounts) => {
   })
 
   it('should create new pool', async () => {
+    await timeMachine.advanceBlockAndSetTime(Date.now())
       await rwdToken.approve(flexStaking.address, amount, { from: projectOwner })
       const tx = await flexStaking.CreateStakingPool(lockToken.address, rwdToken.address, amount, startTime, finishTime, APR, oneMonth, halfYear, minAmount, maxAmount, '0')
       const pool = tx.logs[tx.logs.length - 1].args
