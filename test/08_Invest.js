@@ -20,7 +20,7 @@ contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) 
     let poolzBack, ethTestToken, ercTestToken, whiteList, lockedDeal, mainCoin, firstAddress = accounts[0]
     let tokenWhiteListId, mainCoinWhiteListId
     let ethInvestor, ethAllowance, ercInvestor, ercAllowance
-    let ethPoolId, ercPoolId, poolIdErc
+    let ethPoolId, ercPoolId, ercPoolId2
 
     const ercPozRate = new BN('100')
     const ercPublicRate = new BN('50')
@@ -156,7 +156,6 @@ contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) 
                 const d21PublicRate = ercPublicRate.mul(new BN('10').pow(new BN(21 + tokenDecimals.toNumber() - mainCoinDecimals.toNumber())))
                 const tx = await poolzBack.CreatePool(ercTestToken.address, future, d21PublicRate, d21PozRate, startAmount, 0, mainCoin.address, true, 0, investorWhiteListId, { from: firstAddress })
                 ercPoolId = tx.logs[1].args[1].toString()
-                poolIdErc = ercPoolId
                 let newpools = await poolzBack.poolsCount.call()
                 assert.equal(newpools.toNumber(), 2, "Got 1 pool")
                 const result = await poolzBack.GetPoolExtraData(ercPoolId)
@@ -273,19 +272,36 @@ contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) 
             const d21PublicRate = ercPublicRate.mul(new BN('10').pow(new BN(21 + tokenDecimals.toNumber() - mainCoinDecimals.toNumber())))
             const tx = await poolzBack.CreatePool(ercTestToken.address, future, d21PublicRate, d21PozRate, 100000, future, mainCoin.address, true, 0, investorWhiteListId, { from: firstAddress })
             ercPoolId2 = tx.logs[1].args[1].toString()
-            await whiteList.AddAddress(investorWhiteListId, [firstAddress], [1000], { from: firstAddress })
-            await timeMachine.advanceBlockAndSetTime(future)
+            await timeMachine.advanceBlockAndSetTime(future + 10000000)
             const res = await poolzBack.GetPoolStatus(ercPoolId2)
             assert.equal(res.toString(), '4')
         })
 
         it('should return Close', async () => {
             const date = new Date()
-            date.setDate(date.getDate() + 1)   // add a day
-            const future = Math.floor(date.getTime() / 1000) + 60
-            await timeMachine.advanceBlockAndSetTime(future + 100)
-            const result = await poolzBack.WithdrawLeftOvers(poolIdErc)
-            const res = await poolzBack.GetPoolStatus(poolIdErc)
+            date.setDate(date.getDate() + 1)  
+            const time = Math.floor(date.getTime() / 1000) + 60 + 1000000
+            await timeMachine.advanceBlockAndSetTime(time)
+            const tx = await poolzBack.GetPoolExtraData(ercPoolId2)
+            console.log("TookLeftOvers: " + tx[0].toString())
+            const result = await poolzBack.WithdrawLeftOvers(ercPoolId2)
+            console.log(result.logs[0].args)
+            const tx1 = await poolzBack.GetPoolExtraData(ercPoolId2)
+            console.log("TookLeftOvers: " + tx1[0].toString())
+            console.log("WhiteListId: " + tx1[1].toString())
+            console.log("Maincoin: " + tx1[2].toString())
+            const tx2 = await poolzBack.GetPoolMoreData(ercPoolId2)
+            console.log("LockedUntil: " + tx2[0].toString())
+            console.log("Lefttokens: " + tx2[1].toString())
+            console.log("StartTime: " + tx2[2].toString())
+            console.log("OpenForAll: " + tx2[3].toString())
+            console.log("UnlockedTokens: " + tx2[4].toString())
+            console.log("Is21DecimalRate: " + tx2[5].toString())
+            const tx3 = await poolzBack.GetPoolBaseData(ercPoolId2)
+            console.log("FinishTime: " + tx3[2].toString())
+            console.log("StartAmount: " + tx3[5].toString())
+            console.log("Now: " + time)
+            const res = await poolzBack.GetPoolStatus(ercPoolId2)
             assert.equal(res.toString(), '5')
         })
     })
