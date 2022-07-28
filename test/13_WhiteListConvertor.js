@@ -272,13 +272,21 @@ contract("Integration Between PoolzBack and WhiteListConvertor", (accounts) => {
     });
 
     it("should withdraw eth fee", async () => {
-      await whiteList.WithdrawETHFee(secondAddress);
+      const tx = await whiteList.WithdrawETHFee(firstAddress);
     });
 
     it("should return true so whitelist is ready", async () => {
       const res = await whiteList.isWhiteListReady(whiteListId);
       assert.equal(true, res);
     });
+
+    it('should set white list address', async () => {
+      const previousAddress = await whiteListConvertor.WhiteListAddress();
+      await whiteListConvertor.SetWhiteListAddress(accounts[2])
+      const newAddress = await whiteListConvertor.WhiteListAddress();
+      assert.notEqual(previousAddress, newAddress)
+      assert.equal(newAddress, accounts[2])
+    })
   });
 
   describe("should fail", async () => {
