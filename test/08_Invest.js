@@ -285,7 +285,7 @@ contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) 
             const future = Math.floor(date.getTime() / 1000) + 60
             await timeMachine.advanceBlockAndSetTime(future + 100)
             const result = await poolzBack.WithdrawLeftOvers(poolIdErc)
-            console.log(result)
+            console.log(result) 
             const res = await poolzBack.GetPoolStatus(poolIdErc)
             assert.equal(res.toString(), '5')
         })
