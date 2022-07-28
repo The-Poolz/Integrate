@@ -20,7 +20,7 @@ contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) 
     let poolzBack, ethTestToken, ercTestToken, whiteList, lockedDeal, mainCoin, firstAddress = accounts[0]
     let tokenWhiteListId, mainCoinWhiteListId
     let ethInvestor, ethAllowance, ercInvestor, ercAllowance
-    let ethPoolId, ercPoolId
+    let ethPoolId, ercPoolId, poolIdErc
 
     const ercPozRate = new BN('100')
     const ercPublicRate = new BN('50')
@@ -156,6 +156,7 @@ contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) 
                 const d21PublicRate = ercPublicRate.mul(new BN('10').pow(new BN(21 + tokenDecimals.toNumber() - mainCoinDecimals.toNumber())))
                 const tx = await poolzBack.CreatePool(ercTestToken.address, future, d21PublicRate, d21PozRate, startAmount, 0, mainCoin.address, true, 0, investorWhiteListId, { from: firstAddress })
                 ercPoolId = tx.logs[1].args[1].toString()
+                poolIdErc = ercPoolId
                 let newpools = await poolzBack.poolsCount.call()
                 assert.equal(newpools.toNumber(), 2, "Got 1 pool")
                 const result = await poolzBack.GetPoolExtraData(ercPoolId)
@@ -230,6 +231,7 @@ contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) 
     })
 
     describe('should get info', async () => {
+        let investorWhiteListId, ercPoolId
         it('should get investment ids', async () => {
             const res = await poolzBack.GetMyInvestmentIds({ from: ethInvestor[0] })
             assert.equal(2, res.length)
@@ -250,18 +252,18 @@ contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) 
             const d21PozRate = ercPozRate.mul(new BN('10').pow(new BN(21 + tokenDecimals.toNumber() - mainCoinDecimals.toNumber())))
             const d21PublicRate = ercPublicRate.mul(new BN('10').pow(new BN(21 + tokenDecimals.toNumber() - mainCoinDecimals.toNumber())))
             const tx = await poolzBack.CreatePool(ercTestToken.address, future, d21PublicRate, d21PozRate, 100000, future, mainCoin.address, true, 0, investorWhiteListId, { from: firstAddress })
-            const ercPoolId = tx.logs[1].args[1].toString()
+            const ercPoolId2 = tx.logs[1].args[1].toString()
             await whiteList.AddAddress(investorWhiteListId, [firstAddress], [1000], { from: firstAddress })
             await mainCoin.approve(poolzBack.address, 1000, { from: firstAddress })
-            await poolzBack.InvestERC20(ercPoolId, 1000, { from: firstAddress })
-            const res = await poolzBack.GetPoolStatus(ercPoolId)
+            await poolzBack.InvestERC20(ercPoolId2, 1000, { from: firstAddress })
+            const res = await poolzBack.GetPoolStatus(ercPoolId2)
             assert.equal(res.toString(), '3')
         })
 
         it('should return Finished', async () => {
             const mainCoinDecimals = await mainCoin.decimals()
             const tx3 = await createNewWhiteList(whiteList, poolzBack.address, firstAddress)
-            const investorWhiteListId = tx3.logs[0].args._WhiteListCount.toNumber()
+            investorWhiteListId = tx3.logs[0].args._WhiteListCount.toNumber()
             await ercTestToken.approve(poolzBack.address, 100000, { from: firstAddress })
             const date = new Date()
             date.setDate(date.getDate() + 1)   // add a day
@@ -270,33 +272,21 @@ contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) 
             const d21PozRate = ercPozRate.mul(new BN('10').pow(new BN(21 + tokenDecimals.toNumber() - mainCoinDecimals.toNumber())))
             const d21PublicRate = ercPublicRate.mul(new BN('10').pow(new BN(21 + tokenDecimals.toNumber() - mainCoinDecimals.toNumber())))
             const tx = await poolzBack.CreatePool(ercTestToken.address, future, d21PublicRate, d21PozRate, 100000, future, mainCoin.address, true, 0, investorWhiteListId, { from: firstAddress })
-            const ercPoolId = tx.logs[1].args[1].toString()
+            ercPoolId2 = tx.logs[1].args[1].toString()
             await whiteList.AddAddress(investorWhiteListId, [firstAddress], [1000], { from: firstAddress })
             await timeMachine.advanceBlockAndSetTime(future)
-            const res = await poolzBack.GetPoolStatus(ercPoolId)
+            const res = await poolzBack.GetPoolStatus(ercPoolId2)
             assert.equal(res.toString(), '4')
         })
 
         it('should return Close', async () => {
-            await timeMachine.advanceBlockAndSetTime(Date.now())
-            await poolzBack.SetLockedDealAddress(lockedDeal.address)
-            const mainCoinDecimals = await mainCoin.decimals()
-            const tx3 = await createNewWhiteList(whiteList, poolzBack.address, firstAddress)
-            const investorWhiteListId = tx3.logs[0].args._WhiteListCount.toNumber()
-            await ercTestToken.approve(poolzBack.address, 100000, { from: firstAddress })
             const date = new Date()
             date.setDate(date.getDate() + 1)   // add a day
             const future = Math.floor(date.getTime() / 1000) + 60
-            const tokenDecimals = await ercTestToken.decimals()
-            const d21PozRate = ercPozRate.mul(new BN('10').pow(new BN(21 + tokenDecimals.toNumber() - mainCoinDecimals.toNumber())))
-            const d21PublicRate = ercPublicRate.mul(new BN('10').pow(new BN(21 + tokenDecimals.toNumber() - mainCoinDecimals.toNumber())))
-            const tx = await poolzBack.CreatePool(ercTestToken.address, future, d21PublicRate, d21PozRate, 100000, future, mainCoin.address, true, 0, investorWhiteListId, { from: firstAddress })
-            const ercPoolId = tx.logs[1].args[1].toString()
-            await whiteList.AddAddress(investorWhiteListId, [firstAddress], [1000], { from: firstAddress })
-            await mainCoin.approve(poolzBack.address, 1000, { from: firstAddress })
-            await poolzBack.InvestERC20(ercPoolId, 1000, { from: firstAddress })
-            await timeMachine.advanceBlockAndSetTime(future)
-            const res = await poolzBack.GetPoolStatus(ercPoolId)
+            await timeMachine.advanceBlockAndSetTime(future + 100)
+            const result = await poolzBack.WithdrawLeftOvers(poolIdErc)
+            console.log(result)
+            const res = await poolzBack.GetPoolStatus(poolIdErc)
             assert.equal(res.toString(), '5')
         })
     })
