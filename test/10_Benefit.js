@@ -236,13 +236,6 @@ contract("Integration between PoolzBack, Uniswap and Benefit", (accounts) => {
       result = await benefit.CalcTotal(pozHolder);
       expectedBalance = "5000000";
       assert.equal(result.toString(), expectedBalance, "check token amount"); 
-
-      // await benefit.AddNewLpCheck(pozToken.address, constants.ZERO_ADDRESS, {
-      //   from: firstAddress,
-      // });
-
-      // const tx = await benefit.CalcTotal(firstAddress)
-      // console.log(tx)
     });
   });
 

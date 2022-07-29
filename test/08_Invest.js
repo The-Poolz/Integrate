@@ -304,5 +304,10 @@ contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) 
             const res = await poolzBack.GetPoolStatus(ercPoolId2)
             assert.equal(res.toString(), '5')
         })
+
+        it('should get total investors', async () => {
+            const res = await poolzBack.getTotalInvestor();
+            assert.equal(9, res.toString());
+        })
     })
 })
