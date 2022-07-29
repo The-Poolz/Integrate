@@ -235,7 +235,7 @@ contract("Integration between PoolzBack, Uniswap and Benefit", (accounts) => {
       await uniswapV2Pair.skim(pozHolder, { from: pozHolder });
       result = await benefit.CalcTotal(pozHolder);
       expectedBalance = "5000000";
-      assert.equal(result.toString(), expectedBalance, "check token amount");
+      assert.equal(result.toString(), expectedBalance, "check token amount"); 
 
       // await benefit.AddNewLpCheck(pozToken.address, constants.ZERO_ADDRESS, {
       //   from: firstAddress,
