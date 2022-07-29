@@ -72,4 +72,14 @@ contract('Integration between PoolzBack and LockedDeal', accounts => {
             assert.equal(result, bal)
         })
     })
+
+    describe('Withdrawing', () => {
+        it('should withdraw eth fee', async () => {
+            await lockedDeal.WithdrawETHFee(firstAddress)
+        })
+
+        it('should withdraw ERC20 fee', async () => {
+            await lockedDeal.WithdrawERC20Fee(testToken.address, firstAddress)
+        })
+    })
 })
