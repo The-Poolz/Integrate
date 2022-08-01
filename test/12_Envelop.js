@@ -342,7 +342,6 @@ contract(
         thirdAddress = accounts[2],
         fourthAddress = accounts[3],
         fifthAddress = accounts[4];
-      const ten = new BigNumber(18);
       const amount = new BigNumber(10 ** 19);
 
       const runSimulation = (amountToActivate, blockTime) => {
@@ -397,7 +396,6 @@ contract(
 
       before(async () => {
         // sending token to 4 addresses
-        const balance = await token.balanceOf(firstAddress);
         await token.transfer(secondAddress, amount.toString(), {
           from: firstAddress,
         });

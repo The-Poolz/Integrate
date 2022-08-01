@@ -3,7 +3,6 @@ const TestToken = artifacts.require("ERC20Token")
 const WhiteList = artifacts.require("WhiteList")
 const { assert } = require('chai')
 const truffleAssert = require('truffle-assertions')
-const constants = require('@openzeppelin/test-helpers/src/constants.js')
 
 const { createNewWhiteList } = require('./helper')
 
@@ -116,7 +115,7 @@ contract("LockedDealV2 with WhiteList integration", accounts => {
             const finishTime = startTime + 60 * 60 * 24 * 30
             const address = [Token.address]
             const allowance = [1]
-            const whiteListId = await instance.TokenFilterWhiteListId() 
+            const whiteListId = await instance.TokenFilterWhiteListId()
             await whiteList.AddAddress(whiteListId, address, allowance)
             await instance.CreateNewPool(Token.address, startTime, finishTime, allow, owner, { from: owner, value: amount })
         })

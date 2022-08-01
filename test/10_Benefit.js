@@ -7,7 +7,6 @@ const UniswapV2Factory = artifacts.require("UniswapV2Factory");
 const { assert } = require("chai");
 const truffleAssert = require("truffle-assertions");
 const timeMachine = require("ganache-time-traveler");
-const BigNumber = require("bignumber.js");
 const BN = web3.utils.BN;
 const pozRate = new BN("1000000000"); // with decimal21 (shifter) 1 eth^18 = 1 token^6
 const publicRate = new BN("500000000"); // with decimal21 (shifter) 1 eth^18 = 1 token^6
@@ -201,7 +200,7 @@ contract("Integration between PoolzBack, Uniswap and Benefit", (accounts) => {
       it('should return whether is POZ holder', async () => {
         await benefit.IsPOZHolder(accounts[3])
       })
-      
+
       await benefit.AddNewLpCheck(pozToken.address, uniswapV2Pair.address, {
         from: firstAddress,
       });
@@ -234,7 +233,7 @@ contract("Integration between PoolzBack, Uniswap and Benefit", (accounts) => {
       await uniswapV2Pair.skim(pozHolder, { from: pozHolder });
       result = await benefit.CalcTotal(pozHolder);
       expectedBalance = "5000000";
-      assert.equal(result.toString(), expectedBalance, "check token amount"); 
+      assert.equal(result.toString(), expectedBalance, "check token amount");
     });
   });
 
@@ -300,9 +299,6 @@ contract("Integration between PoolzBack, Uniswap and Benefit", (accounts) => {
       await benefit.AddNewStaking(poolzBack.address);
       const newCount = await benefit.ChecksCount();
       equal((previousCount.toNumber()) + 1, newCount);
-    })
-
-    it('should check staking', async () => {
     })
   });
 });

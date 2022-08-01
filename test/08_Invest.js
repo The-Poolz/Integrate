@@ -12,7 +12,6 @@ var BN = web3.utils.BN
 const pozRate = new BN('1000000000') // with decimal21 (shifter) 1 eth^18 = 1 token^6
 const publicRate = new BN('500000000') // with decimal21 (shifter) 1 eth^18 = 1 token^6
 const amount = new BN('3000000') //3 tokens for sale
-const invest = web3.utils.toWei('1', 'ether') //1eth
 
 const { createNewWhiteList } = require('./helper')
 
@@ -20,7 +19,7 @@ contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) 
     let poolzBack, ethTestToken, ercTestToken, whiteList, lockedDeal, mainCoin, firstAddress = accounts[0]
     let tokenWhiteListId, mainCoinWhiteListId
     let ethInvestor, ethAllowance, ercInvestor, ercAllowance
-    let ethPoolId, ercPoolId, ercPoolId2
+    let ethPoolId, ercPoolId
 
     const ercPozRate = new BN('100')
     const ercPublicRate = new BN('50')
@@ -241,8 +240,8 @@ contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) 
             await poolzBack.SwitchLockedDealForTlp();
             await poolzBack.SetLockedDealAddress(lockedDeal.address)
             const mainCoinDecimals = await mainCoin.decimals()
-            const tx3 = await createNewWhiteList(whiteList, poolzBack.address, firstAddress)
-            const investorWhiteListId = tx3.logs[0].args._WhiteListCount.toNumber()
+            const tx = await createNewWhiteList(whiteList, poolzBack.address, firstAddress)
+            const investorWhiteListId = tx.logs[0].args._WhiteListCount.toNumber()
             await ercTestToken.approve(poolzBack.address, 100000, { from: firstAddress })
             const date = new Date()
             date.setDate(date.getDate() + 1)   // add a day
@@ -250,19 +249,19 @@ contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) 
             const tokenDecimals = await ercTestToken.decimals()
             const d21PozRate = ercPozRate.mul(new BN('10').pow(new BN(21 + tokenDecimals.toNumber() - mainCoinDecimals.toNumber())))
             const d21PublicRate = ercPublicRate.mul(new BN('10').pow(new BN(21 + tokenDecimals.toNumber() - mainCoinDecimals.toNumber())))
-            const tx = await poolzBack.CreatePool(ercTestToken.address, future, d21PublicRate, d21PozRate, 100000, future, mainCoin.address, true, 0, investorWhiteListId, { from: firstAddress })
-            const ercPoolId2 = tx.logs[1].args[1].toString()
+            const result = await poolzBack.CreatePool(ercTestToken.address, future, d21PublicRate, d21PozRate, 100000, future, mainCoin.address, true, 0, investorWhiteListId, { from: firstAddress })
+            ercPoolId = result.logs[1].args[1].toString()
             await whiteList.AddAddress(investorWhiteListId, [firstAddress], [1000], { from: firstAddress })
             await mainCoin.approve(poolzBack.address, 1000, { from: firstAddress })
-            await poolzBack.InvestERC20(ercPoolId2, 1000, { from: firstAddress })
-            const res = await poolzBack.GetPoolStatus(ercPoolId2)
+            await poolzBack.InvestERC20(ercPoolId, 1000, { from: firstAddress })
+            const res = await poolzBack.GetPoolStatus(ercPoolId)
             assert.equal(res.toString(), '3')
         })
 
         it('should return Finished', async () => {
             const mainCoinDecimals = await mainCoin.decimals()
-            const tx3 = await createNewWhiteList(whiteList, poolzBack.address, firstAddress)
-            investorWhiteListId = tx3.logs[0].args._WhiteListCount.toNumber()
+            const tx = await createNewWhiteList(whiteList, poolzBack.address, firstAddress)
+            investorWhiteListId = tx.logs[0].args._WhiteListCount.toNumber()
             await ercTestToken.approve(poolzBack.address, 100000, { from: firstAddress })
             const date = new Date()
             date.setDate(date.getDate() + 1)   // add a day
@@ -270,17 +269,17 @@ contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) 
             const tokenDecimals = await ercTestToken.decimals()
             const d21PozRate = ercPozRate.mul(new BN('10').pow(new BN(21 + tokenDecimals.toNumber() - mainCoinDecimals.toNumber())))
             const d21PublicRate = ercPublicRate.mul(new BN('10').pow(new BN(21 + tokenDecimals.toNumber() - mainCoinDecimals.toNumber())))
-            const tx = await poolzBack.CreatePool(ercTestToken.address, future, d21PublicRate, d21PozRate, 100000, future + 100000, mainCoin.address, true, 0, investorWhiteListId, { from: firstAddress })
-            ercPoolId2 = tx.logs[1].args[1].toString()
+            const result = await poolzBack.CreatePool(ercTestToken.address, future, d21PublicRate, d21PozRate, 100000, future + 100000, mainCoin.address, true, 0, investorWhiteListId, { from: firstAddress })
+            ercPoolId = result.logs[1].args[1].toString()
             await timeMachine.advanceBlockAndSetTime(future)
-            const res = await poolzBack.GetPoolStatus(ercPoolId2)
+            const res = await poolzBack.GetPoolStatus(ercPoolId)
             assert.equal(res.toString(), '4')
         })
 
         it('should return Close', async () => {
             const mainCoinDecimals = await mainCoin.decimals()
-            const tx6 = await createNewWhiteList(whiteList, poolzBack.address, firstAddress)
-            investorWhiteListId = tx6.logs[0].args._WhiteListCount.toNumber()
+            let tx = await createNewWhiteList(whiteList, poolzBack.address, firstAddress)
+            investorWhiteListId = tx.logs[0].args._WhiteListCount.toNumber()
             await ercTestToken.approve(poolzBack.address, 100000, { from: firstAddress })
             const date1 = new Date()
             date1.setDate(date1.getDate() + 1)   // add a day
@@ -288,15 +287,15 @@ contract('Interation Between PoolzBack and WhiteList for Investing', (accounts) 
             const tokenDecimals = await ercTestToken.decimals()
             const d21PozRate = ercPozRate.mul(new BN('10').pow(new BN(21 + tokenDecimals.toNumber() - mainCoinDecimals.toNumber())))
             const d21PublicRate = ercPublicRate.mul(new BN('10').pow(new BN(21 + tokenDecimals.toNumber() - mainCoinDecimals.toNumber())))
-            const tx5 = await poolzBack.CreatePool(ercTestToken.address, future, d21PublicRate, d21PozRate, 100000, future + 10000000, mainCoin.address, true, 0, investorWhiteListId, { from: firstAddress })
-            ercPoolId2 = tx5.logs[1].args[1].toString()
+            tx = await poolzBack.CreatePool(ercTestToken.address, future, d21PublicRate, d21PozRate, 100000, future + 10000000, mainCoin.address, true, 0, investorWhiteListId, { from: firstAddress })
+            ercPoolId = tx.logs[1].args[1].toString()
             const date = new Date()
-            date.setDate(date.getDate() + 1)  
+            date.setDate(date.getDate() + 1)
             const time = Math.floor(date.getTime() / 1000) + 60 + 1000000
             await timeMachine.advanceBlockAndSetTime(time)
-            await poolzBack.GetPoolExtraData(ercPoolId2)
-            await poolzBack.WithdrawLeftOvers(ercPoolId2)
-            const res = await poolzBack.GetPoolStatus(ercPoolId2)
+            await poolzBack.GetPoolExtraData(ercPoolId)
+            await poolzBack.WithdrawLeftOvers(ercPoolId)
+            const res = await poolzBack.GetPoolStatus(ercPoolId)
             assert.equal(res.toString(), '5')
         })
 

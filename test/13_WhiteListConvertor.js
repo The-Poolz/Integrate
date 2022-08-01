@@ -4,7 +4,6 @@ const WhiteList = artifacts.require("WhiteList");
 const WhiteListConvertor = artifacts.require("WhiteListConvertor");
 const { assert } = require("chai");
 const truffleAssert = require("truffle-assertions");
-const BigNumber = require("bignumber.js");
 const constants = require("@openzeppelin/test-helpers/src/constants");
 const BN = web3.utils.BN;
 
@@ -12,7 +11,6 @@ contract("Integration Between PoolzBack and WhiteListConvertor", (accounts) => {
   let poolzBack,
     testToken,
     whiteList,
-    mainCoin,
     firstAddress = accounts[0];
   let whiteListConvertor,
     secondAddress = accounts[1];
