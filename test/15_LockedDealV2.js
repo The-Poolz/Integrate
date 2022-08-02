@@ -118,7 +118,10 @@ contract("LockedDealV2 with WhiteList integration", (accounts) => {
       const startTime = Math.floor(date.getTime() / 1000)
       const finishTime = startTime + 60 * 60 * 24 * 30
       await truffleAssert.reverts(
-        instance.CreateNewPool(Token.address, startTime, finishTime, allow, owner, { from: owner, value: amount }),
+        instance.CreateNewPool(Token.address, startTime, finishTime, allow, owner, {
+          from: owner,
+          value: amount
+        }),
         "Need Valid ERC20 Token"
       )
     })
