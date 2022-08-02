@@ -4,7 +4,11 @@ pragma solidity ^0.6.0;
 import "poolz-helper/contracts/GovManager.sol";
 
 contract Manageable is GovManager {
-    event NewWhiteList(uint _WhitelistId, address _creator, uint _changeUntil);
+    event NewWhiteList(
+        uint256 _WhitelistId,
+        address _creator,
+        uint256 _changeUntil
+    );
 
     modifier OnlyCreator(uint256 _Id) {
         require(
@@ -14,7 +18,7 @@ contract Manageable is GovManager {
         _;
     }
 
-    modifier TimeRemaining(uint256 _Id){
+    modifier TimeRemaining(uint256 _Id) {
         require(
             now < WhitelistSettings[_Id].ChangeUntil,
             "Time for edit is finished"
@@ -22,7 +26,7 @@ contract Manageable is GovManager {
         _;
     }
 
-    modifier ValidateId(uint256 _Id){
+    modifier ValidateId(uint256 _Id) {
         require(_Id < WhiteListCount, "Wrong ID");
         _;
     }
@@ -50,11 +54,11 @@ contract Manageable is GovManager {
         WhitelistDB[_Id][user] = false;
     }
 
-    function isWhiteListReady(uint256 _Id) external view returns(bool){
+    function isWhiteListReady(uint256 _Id) external view returns (bool) {
         return WhitelistSettings[_Id].isReady;
     }
 
-    function IsPOZHolder(address _Sender) external view returns(bool){
+    function IsPOZHolder(address _Sender) external view returns (bool) {
         return WhitelistDB[MainWhitelistId][_Sender];
     }
 }

@@ -1,8 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract WhiteListHelper{
-    event NewWhiteList(uint _WhiteListCount, address _creator, address _contract, uint _changeUntil);
+contract WhiteListHelper {
+    event NewWhiteList(
+        uint256 _WhiteListCount,
+        address _creator,
+        address _contract,
+        uint256 _changeUntil
+    );
 
     modifier OnlyCreator(uint256 _Id) {
         require(
@@ -12,7 +17,7 @@ contract WhiteListHelper{
         _;
     }
 
-    modifier TimeRemaining(uint256 _Id){
+    modifier TimeRemaining(uint256 _Id) {
         require(
             block.timestamp < WhitelistSettings[_Id].ChangeUntil,
             "Time for edit is finished"
@@ -20,7 +25,7 @@ contract WhiteListHelper{
         _;
     }
 
-    modifier ValidateId(uint256 _Id){
+    modifier ValidateId(uint256 _Id) {
         require(_Id < WhiteListCount, "Wrong ID");
         _;
     }
@@ -41,7 +46,11 @@ contract WhiteListHelper{
     uint256 public WhiteListCost;
     uint256 public WhiteListCount;
 
-    function _AddAddress(uint256 _Id, address user, uint amount) internal {
+    function _AddAddress(
+        uint256 _Id,
+        address user,
+        uint256 amount
+    ) internal {
         WhitelistDB[_Id][user] = amount;
     }
 
@@ -49,13 +58,13 @@ contract WhiteListHelper{
         WhitelistDB[_Id][user] = 0;
     }
 
-    function isWhiteListReady(uint256 _Id) external view returns(bool){
+    function isWhiteListReady(uint256 _Id) external view returns (bool) {
         return WhitelistSettings[_Id].isReady;
     }
 
     //View function to Check if address is whitelisted
-    function Check(address _user, uint256 _id) external view returns(uint){
-        if (_id == 0) return type(uint).max;
+    function Check(address _user, uint256 _id) external view returns (uint256) {
+        if (_id == 0) return type(uint256).max;
         return WhitelistDB[_id][_user];
     }
 }

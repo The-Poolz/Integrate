@@ -79,7 +79,12 @@ contract Benefit is IPOZBenefit, Ownable {
         return IStaking(_Contract).stakeOf(_Subject);
     }
 
-    function IsPOZHolder(address _Subject) override external view returns (bool) {
+    function IsPOZHolder(address _Subject)
+        external
+        view
+        override
+        returns (bool)
+    {
         return CalcTotal(_Subject) >= MinHold;
     }
 

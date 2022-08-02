@@ -5,7 +5,6 @@ import "openzeppelin-solidity/contracts/math/SafeMath.sol";
 import "./Invest.sol";
 
 contract InvestorData is Invest {
-    
     //Give all the id's of the investment  by sender address
     function GetMyInvestmentIds() public view returns (uint256[] memory) {
         return InvestorsMap[msg.sender];

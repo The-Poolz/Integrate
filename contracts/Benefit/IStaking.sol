@@ -4,5 +4,5 @@
 pragma solidity ^0.6.0;
 
 interface IStaking {
-    function stakeOf(address account) external view returns (uint256) ;
+    function stakeOf(address account) external view returns (uint256);
 }

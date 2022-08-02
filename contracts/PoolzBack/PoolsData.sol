@@ -4,7 +4,14 @@ pragma solidity ^0.6.0;
 import "./Pools.sol";
 
 contract PoolsData is Pools {
-    enum PoolStatus {Created, Open, PreMade, OutOfstock, Finished, Close} //the status of the pools
+    enum PoolStatus {
+        Created,
+        Open,
+        PreMade,
+        OutOfstock,
+        Finished,
+        Close
+    } //the status of the pools
 
     modifier isPoolId(uint256 _id) {
         require(_id < poolsCount, "Invalid Pool ID");
@@ -91,7 +98,11 @@ contract PoolsData is Pools {
     }
 
     //@dev no use of revert to make sure the loop will work
-    function WithdrawLeftOvers(uint256 _PoolId) public isPoolId(_PoolId) returns (bool) {
+    function WithdrawLeftOvers(uint256 _PoolId)
+        public
+        isPoolId(_PoolId)
+        returns (bool)
+    {
         //pool is finished + got left overs + did not took them
         if (IsReadyWithdrawLeftOvers(_PoolId)) {
             pools[_PoolId].MoreData.TookLeftOvers = true;
@@ -143,10 +154,7 @@ contract PoolsData is Pools {
         {
             return (PoolStatus.Close);
         }
-        if (
-            now >= pools[_id].BaseData.FinishTime &&
-            !isPoolLocked(_id)
-        ) {
+        if (now >= pools[_id].BaseData.FinishTime && !isPoolLocked(_id)) {
             // After finish time - not locked
             if (pools[_id].MoreData.TookLeftOvers) return (PoolStatus.Close);
             return (PoolStatus.Finished);

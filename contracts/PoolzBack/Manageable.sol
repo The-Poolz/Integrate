@@ -10,7 +10,7 @@ import "poolz-helper/contracts/IWhiteList.sol";
 
 import "openzeppelin-solidity/contracts/utils/Pausable.sol";
 
-contract Manageable is ETHHelper, ERC20Helper, PozBenefit, Pausable  {
+contract Manageable is ETHHelper, ERC20Helper, PozBenefit, Pausable {
     constructor() public {
         Fee = 20; // *10000
         //MinDuration = 0; //need to set
@@ -45,23 +45,31 @@ contract Manageable is ETHHelper, ERC20Helper, PozBenefit, Pausable  {
         IsTokenFilterOn = !IsTokenFilterOn;
     }
 
-    function setTokenWhitelistId(uint256 _whiteListId) external onlyOwnerOrGov{
+    function setTokenWhitelistId(uint256 _whiteListId) external onlyOwnerOrGov {
         TokenWhitelistId = _whiteListId;
     }
 
-    function setMCWhitelistId(uint256 _whiteListId) external onlyOwnerOrGov{
+    function setMCWhitelistId(uint256 _whiteListId) external onlyOwnerOrGov {
         MCWhitelistId = _whiteListId;
     }
 
     function IsValidToken(address _address) public view returns (bool) {
-        return !IsTokenFilterOn || (IWhiteList(WhiteList_Address).Check(_address, TokenWhitelistId) > 0);
+        return
+            !IsTokenFilterOn ||
+            (IWhiteList(WhiteList_Address).Check(_address, TokenWhitelistId) >
+                0);
     }
 
     function IsERC20Maincoin(address _address) public view returns (bool) {
-        return !IsTokenFilterOn || IWhiteList(WhiteList_Address).Check(_address, MCWhitelistId) > 0;
+        return
+            !IsTokenFilterOn ||
+            IWhiteList(WhiteList_Address).Check(_address, MCWhitelistId) > 0;
     }
-    
-    function SetWhiteList_Address(address _WhiteList_Address) public onlyOwnerOrGov {
+
+    function SetWhiteList_Address(address _WhiteList_Address)
+        public
+        onlyOwnerOrGov
+    {
         WhiteList_Address = _WhiteList_Address;
     }
 
@@ -76,10 +84,11 @@ contract Manageable is ETHHelper, ERC20Helper, PozBenefit, Pausable  {
         MinETHInvest = _MinETHInvest;
         MaxETHInvest = _MaxETHInvest;
     }
-    function SetMinMaxERC20Invest(uint256 _MinERC20Invest, uint256 _MaxERC20Invest)
-        public
-        onlyOwnerOrGov
-    {
+
+    function SetMinMaxERC20Invest(
+        uint256 _MinERC20Invest,
+        uint256 _MaxERC20Invest
+    ) public onlyOwnerOrGov {
         MinERC20Invest = _MinERC20Invest;
         MaxERC20Invest = _MaxERC20Invest;
     }
@@ -122,7 +131,7 @@ contract Manageable is ETHHelper, ERC20Helper, PozBenefit, Pausable  {
         UseLockedDealForTlp = !UseLockedDealForTlp;
     }
 
-    function isUsingLockedDeal() public view returns(bool) {
+    function isUsingLockedDeal() public view returns (bool) {
         return UseLockedDealForTlp && LockedDealAddress != address(0x0);
     }
 
@@ -133,5 +142,4 @@ contract Manageable is ETHHelper, ERC20Helper, PozBenefit, Pausable  {
     function unpause() public onlyOwnerOrGov {
         _unpause();
     }
-    
 }

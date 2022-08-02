@@ -7,7 +7,7 @@ contract HodlersWhitelist is Manageable {
     constructor() public {
         MaxUsersLimit = 600;
     }
-    
+
     uint256 public MaxUsersLimit;
 
     modifier isBelowUserLimit(uint256 _limit) {
@@ -19,8 +19,12 @@ contract HodlersWhitelist is Manageable {
         MaxUsersLimit = _limit;
     }
 
-    function CreateManualWhiteList(uint256 _ChangeUntil) external onlyOwnerOrGov returns (uint256 Id) {
-        WhitelistSettings[WhiteListCount] =  WhiteListItem(
+    function CreateManualWhiteList(uint256 _ChangeUntil)
+        external
+        onlyOwnerOrGov
+        returns (uint256 Id)
+    {
+        WhitelistSettings[WhiteListCount] = WhiteListItem(
             msg.sender,
             _ChangeUntil,
             false
@@ -47,8 +51,8 @@ contract HodlersWhitelist is Manageable {
         TimeRemaining(_Id)
         isBelowUserLimit(_Users.length)
     {
-        require(_Users.length > 0,"Need something...");
-        if(!WhitelistSettings[_Id].isReady){
+        require(_Users.length > 0, "Need something...");
+        if (!WhitelistSettings[_Id].isReady) {
             WhitelistSettings[_Id].isReady = true;
         }
         for (uint256 index = 0; index < _Users.length; index++) {

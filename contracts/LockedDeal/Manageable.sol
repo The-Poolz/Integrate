@@ -12,33 +12,40 @@ contract Manageable is ETHHelper, ERC20Helper, PozBenefit {
         MinDuration = 0; //need to set
         maxTransactionLimit = 400;
     }
-    mapping (address => uint256) FeeMap;
+
+    mapping(address => uint256) FeeMap;
     //@dev for percent use uint16
     uint16 internal Fee; //the fee for the pool
     uint16 internal MinDuration; //the minimum duration of a pool, in seconds
 
     address public WhiteList_Address;
     bool public isTokenFilterOn;
-    uint public WhiteListId;
+    uint256 public WhiteListId;
     uint256 public maxTransactionLimit;
-    
-    function setWhiteListAddress(address _address) external onlyOwner{
+
+    function setWhiteListAddress(address _address) external onlyOwner {
         WhiteList_Address = _address;
     }
 
-    function setWhiteListId(uint256 _id) external onlyOwner{
-        WhiteListId= _id;
+    function setWhiteListId(uint256 _id) external onlyOwner {
+        WhiteListId = _id;
     }
 
-    function swapTokenFilter() external onlyOwner{
+    function swapTokenFilter() external onlyOwner {
         isTokenFilterOn = !isTokenFilterOn;
     }
 
-    function isTokenWhiteListed(address _tokenAddress) public view returns(bool) {
-        return !isTokenFilterOn || IWhiteList(WhiteList_Address).Check(_tokenAddress, WhiteListId) > 0;
+    function isTokenWhiteListed(address _tokenAddress)
+        public
+        view
+        returns (bool)
+    {
+        return
+            !isTokenFilterOn ||
+            IWhiteList(WhiteList_Address).Check(_tokenAddress, WhiteListId) > 0;
     }
 
-    function setMaxTransactionLimit(uint256 _newLimit) external onlyOwner{
+    function setMaxTransactionLimit(uint256 _newLimit) external onlyOwner {
         maxTransactionLimit = _newLimit;
     }
 
@@ -54,9 +61,12 @@ contract Manageable is ETHHelper, ERC20Helper, PozBenefit {
         return Fee;
     }
 
-    function SetFee(uint16 _fee) public onlyOwner
+    function SetFee(uint16 _fee)
+        public
+        onlyOwner
         PercentCheckOk(_fee)
-        LeftIsBigger( _fee, PozFee) {
+        LeftIsBigger(_fee, PozFee)
+    {
         Fee = _fee;
     }
 
@@ -64,7 +74,7 @@ contract Manageable is ETHHelper, ERC20Helper, PozBenefit {
         public
         onlyOwner
         PercentCheckOk(_fee)
-        LeftIsBigger( Fee,_fee)
+        LeftIsBigger(Fee, _fee)
     {
         PozFee = _fee;
     }
@@ -73,8 +83,8 @@ contract Manageable is ETHHelper, ERC20Helper, PozBenefit {
         _to.transfer(address(this).balance); // keeps only fee eth on contract //To Do need to take 16% to burn!!!
     }
 
-    function WithdrawERC20Fee(address _Token, address _to) public onlyOwner {    
+    function WithdrawERC20Fee(address _Token, address _to) public onlyOwner {
         ERC20(_Token).transfer(_to, FeeMap[_Token]);
-        FeeMap[_Token] = 0 ;
+        FeeMap[_Token] = 0;
     }
 }

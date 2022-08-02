@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 import "./WhiteListHelper.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract WhiteList is WhiteListHelper, Ownable{
+contract WhiteList is WhiteListHelper, Ownable {
     constructor() {
         WhiteListCount = 1; //0 is off
         MaxUsersLimit = 500;
@@ -21,21 +21,22 @@ contract WhiteList is WhiteListHelper, Ownable{
     function setMaxUsersLimit(uint256 _limit) external onlyOwner {
         MaxUsersLimit = _limit;
     }
-    
+
     function WithdrawETHFee(address payable _to) public onlyOwner {
-        _to.transfer(address(this).balance); 
+        _to.transfer(address(this).balance);
     }
 
     function setWhiteListCost(uint256 _newCost) external onlyOwner {
         WhiteListCost = _newCost;
     }
 
-    function CreateManualWhiteList(
-        uint256 _ChangeUntil,
-        address _Contract
-    ) public payable returns (uint256 Id) {
+    function CreateManualWhiteList(uint256 _ChangeUntil, address _Contract)
+        public
+        payable
+        returns (uint256 Id)
+    {
         require(msg.value >= WhiteListCost, "ether not enough");
-        WhitelistSettings[WhiteListCount] =  WhiteListItem(
+        WhitelistSettings[WhiteListCount] = WhiteListItem(
             /*_Limit == 0 ? type(uint).max :*/
             // _Limit,
             msg.sender,
@@ -67,16 +68,23 @@ contract WhiteList is WhiteListHelper, Ownable{
         WhitelistSettings[_Id].Contract = _NewContract;
     }
 
-    function AddAddress(uint256 _Id, address[] calldata _Users, uint256[] calldata _Amount)
+    function AddAddress(
+        uint256 _Id,
+        address[] calldata _Users,
+        uint256[] calldata _Amount
+    )
         external
         ValidateId(_Id)
         OnlyCreator(_Id)
         TimeRemaining(_Id)
         isBelowUserLimit(_Users.length)
     {
-        require(_Users.length == _Amount.length, "Number of users should be same as the amount length");
-        require(_Users.length > 0,"Need something...");
-        if(!WhitelistSettings[_Id].isReady){
+        require(
+            _Users.length == _Amount.length,
+            "Number of users should be same as the amount length"
+        );
+        require(_Users.length > 0, "Need something...");
+        if (!WhitelistSettings[_Id].isReady) {
             WhitelistSettings[_Id].isReady = true;
         }
         for (uint256 index = 0; index < _Users.length; index++) {
@@ -115,20 +123,17 @@ contract WhiteList is WhiteListHelper, Ownable{
         assert(WhitelistDB[_Id][_Subject] == temp);
     }
 
-    function LastRoundRegister(
-        address _Subject,
-        uint256 _Id
-    ) external {
+    function LastRoundRegister(address _Subject, uint256 _Id) external {
         if (_Id == 0) return;
         require(
             msg.sender == WhitelistSettings[_Id].Contract,
             "Only the Contract can call this"
         );
         require(
-            WhitelistDB[_Id][_Subject] != type(uint).max,
+            WhitelistDB[_Id][_Subject] != type(uint256).max,
             "Sorry, no alocation for Subject"
         );
-        uint256 temp = type(uint).max;
+        uint256 temp = type(uint256).max;
         WhitelistDB[_Id][_Subject] = temp;
         assert(WhitelistDB[_Id][_Subject] == temp);
     }
