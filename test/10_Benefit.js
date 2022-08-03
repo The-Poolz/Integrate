@@ -119,13 +119,13 @@ contract("Integration between PoolzBack, Uniswap and Benefit", (accounts) => {
         result.logs[result.logs.length - 1].args.token1,
       ];
       assert.equal(
-        token0,
-        await uniswapV2Pair.token0(),
+        token0.toString(),
+        (await uniswapV2Pair.token0()).toString(),
         "check first token address"
       );
       assert.equal(
-        token1,
-        await uniswapV2Pair.token1(),
+        token1.toString(),
+        (await uniswapV2Pair.token1()).toString(),
         "check second token address"
       );
     });
