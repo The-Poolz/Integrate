@@ -28,7 +28,7 @@ contract("Flex Staking with LockedDealV2 integration", (accounts) => {
   })
 
   it('should create new pool', async () => {
-    await timeMachine.advanceBlockAndSetTime(Date.now())
+    await timeMachine.advanceBlockAndSetTime(Math.floor(Date.now() / 1000))
     await rwdToken.approve(flexStaking.address, amount, { from: projectOwner })
     const tx = await flexStaking.CreateStakingPool(lockToken.address, rwdToken.address, amount, startTime, finishTime, APR, oneMonth, halfYear, minAmount, maxAmount, '0')
     const pool = tx.logs[tx.logs.length - 1].args
@@ -189,7 +189,7 @@ contract("Flex Staking with LockedDealV2 integration", (accounts) => {
     const startTime = Math.floor(date.getTime() / 1000) + 60
     date.setDate(date.getDate() + 365)   // add a year
     const finishTime = Math.floor(date.getTime() / 1000) + 60
-    await timeMachine.advanceBlockAndSetTime(Date.now());
+    await timeMachine.advanceBlockAndSetTime(Math.floor(Date.now() / 1000))
     await lockToken.approve(flexStaking.address, 10000000, { from: projectOwner })
     const tx = await flexStaking.CreateStakingPool(lockToken.address, lockToken.address, 10000000, startTime, finishTime, APR, oneMonth, halfYear, minAmount, maxAmount, '0')
     const pool = tx.logs[tx.logs.length - 1].args
