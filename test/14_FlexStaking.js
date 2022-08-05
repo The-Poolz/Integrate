@@ -31,13 +31,8 @@ contract("Flex Staking with LockedDealV2 integration", (accounts) => {
     await flexStaking.SetLockedDealAddress(lockedDeal.address)
   })
 
-<<<<<<< prettier
   it("should create new pool", async () => {
-    await timeMachine.advanceBlockAndSetTime(Date.now())
-=======
-  it('should create new pool', async () => {
     await timeMachine.advanceBlockAndSetTime(Math.floor(Date.now() / 1000))
->>>>>>> master
     await rwdToken.approve(flexStaking.address, amount, { from: projectOwner })
     const tx = await flexStaking.CreateStakingPool(
       lockToken.address,
@@ -170,11 +165,7 @@ contract("Flex Staking with LockedDealV2 integration", (accounts) => {
     const startTime = Math.floor(date.getTime() / 1000) + 60
     date.setDate(date.getDate() + 365) // add a year
     const finishTime = Math.floor(date.getTime() / 1000) + 60
-<<<<<<< prettier
-    await timeMachine.advanceBlockAndSetTime(Date.now())
-=======
     await timeMachine.advanceBlockAndSetTime(Math.floor(Date.now() / 1000))
->>>>>>> master
     await lockToken.approve(flexStaking.address, 10000000, { from: projectOwner })
     const tx = await flexStaking.CreateStakingPool(
       lockToken.address,

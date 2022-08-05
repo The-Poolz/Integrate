@@ -3,9 +3,12 @@
     {
       "files": "*.sol",
       "options": {
-        "tabWidth": 4,
         "printWidth": 80,
-        "singleQuote": false
+        "tabWidth": 4,
+        "useTabs": false,
+        "singleQuote": false,
+        "bracketSpacing": false,
+        "explicitTypes": "always"
       }
     },
     {
