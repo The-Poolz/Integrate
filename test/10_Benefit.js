@@ -105,8 +105,8 @@ contract("Integration between PoolzBack, Uniswap and Benefit", (accounts) => {
         result.logs[result.logs.length - 1].args.token0,
         result.logs[result.logs.length - 1].args.token1
       ]
-      assert.equal(token0, await uniswapV2Pair.token0(), "check first token address")
-      assert.equal(token1, await uniswapV2Pair.token1(), "check second token address")
+      assert.equal(token0.toString(), (await uniswapV2Pair.token0()).toString(), "check first token address")
+      assert.equal(token1.toString(), (await uniswapV2Pair.token1()).toString(), "check second token address")
     })
 
     it("Tracking POZ token in LP", async () => {
