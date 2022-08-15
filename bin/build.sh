@@ -18,6 +18,8 @@ cp -a ./node_modules/poolz-whitelist-converter/contracts/. ./contracts/Whitelist
 
 cp -a ./node_modules/poolz-flex-staking/contracts/. ./contracts/FlexStaking
 
+cp -a ./node_modules/poolz-multi-sender/contracts/. ./contracts/MultiSender
+
 cp -a ./node_modules/poolz-back/test/General/. ./test/01_PoolzBack
 
 cp -a ./node_modules/poolz-whitelist/test/. ./test/02_WhiteList
@@ -38,5 +40,6 @@ cp -a ./node_modules/poolz-locked-deal-v2/test/. ./test/14_LockedDealV2
 
 cp -a ./node_modules/poolz-flex-staking/test/. ./test/FlexStaking
 
+cp -a ./node_modules/poolz-multi-sender/test/. ./test/MultiSender
 #temporary fix for naming error of TestToken in Benefit tests
 #sed -i 's/"TestToken"/"Token"/g' test/4_Benefit/test.js
