@@ -13,6 +13,7 @@ contract("MultiSender and WhiteList integration tests", (accounts) => {
     const fee = 100
     const amount = 100
     const amounts = [amount, amount, amount, amount, amount, amount, amount, amount, amount, amount]
+    const discount = 50 // half fee price
 
     before(async () => {
         instance = await MultiSender.new()
@@ -67,8 +68,7 @@ contract("MultiSender and WhiteList integration tests", (accounts) => {
         assert.equal(parseInt(oldFeeBal) + fee, feeBal.toString())
     })
 
-    it('(multi ETH) pay with dicount', async () => {
-        const discount = 50 // half fee price
+    it('(multi ETH) pay with erc20 dicount', async () => {
         await feeToken.approve(instance.address, discount)
         await truffleAssert.reverts(instance.MultiSendEth(accounts, amounts, {value: amount * amounts.length}), 
         "no allowance")
@@ -78,9 +78,8 @@ contract("MultiSender and WhiteList integration tests", (accounts) => {
         const feeBal = await feeToken.balanceOf(instance.address)
         assert.equal((parseInt(oldFeeBal)  + discount).toString(), (feeBal).toString())
     })
-
-    it("(multi ERC20) pay with dicount", async () => {
-        const discount = 50 // half fee price
+    
+    it("(multi ERC20) pay with erc20 dicount", async () => {
         await feeToken.approve(instance.address, discount)
         await token.approve(instance.address, amount * amounts.length)
         await truffleAssert.reverts(instance.MultiSendERC20(token.address, accounts, amounts),
@@ -90,5 +89,16 @@ contract("MultiSender and WhiteList integration tests", (accounts) => {
         await instance.MultiSendERC20(token.address, accounts, amounts)
         const feeBal = await feeToken.balanceOf(instance.address)
         assert.equal((parseInt(oldFeeBal)  + discount).toString(), (feeBal).toString())
+    })
+
+    it('(multi ETH) pay with eth dicount', async () => {
+        await instance.SetFeeToken(constants.ZERO_ADDRESS)
+        await truffleAssert.reverts(instance.MultiSendEth(accounts, amounts, {value: amount * amounts.length + discount}), 
+        "Insufficient eth value sent!")
+        await whiteList.AddAddress(whiteListId, [accounts[0]], [discount])
+        const oldEthBal = await web3.eth.getBalance(instance.address)
+        await instance.MultiSendEth(accounts, amounts, {value: amount * amounts.length + discount})
+        const ethBal = await web3.eth.getBalance(instance.address)
+        assert.equal(parseInt(oldEthBal) + discount, ethBal)
     })
 })
