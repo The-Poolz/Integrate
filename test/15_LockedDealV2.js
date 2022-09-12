@@ -1,8 +1,10 @@
 const LockedDealV2 = artifacts.require("LockedDealV2")
 const TestToken = artifacts.require("ERC20Token")
 const WhiteList = artifacts.require("WhiteList")
+const constants = require('@openzeppelin/test-helpers/src/constants')
 const { assert } = require('chai')
 const truffleAssert = require('truffle-assertions')
+const BigNumber = require("bignumber.js")
 
 const { createNewWhiteList } = require('./helper')
 
@@ -36,7 +38,10 @@ contract("LockedDealV2 with WhiteList integration", accounts => {
         await instance.CreateNewPool(Token.address, startTime, finishTime, allow, owner, { from: owner, value: amount })
         const contractBal = await web3.eth.getBalance(instance.address)
         assert.equal(contractBal, amount, 'invalid contract balance')
-        await instance.WithdrawFee(fromAddress)
+        const oldBal = new BigNumber(await web3.eth.getBalance(owner))
+        await instance.WithdrawFee(constants.ZERO_ADDRESS, owner)
+        const bal = new BigNumber(await web3.eth.getBalance(owner))
+        assert.equal(bal.toString(), BigNumber.sum(oldBal, contractBal).toString())
     })
 
     it('should pay fee when create mass pools', async () => {
@@ -63,7 +68,10 @@ contract("LockedDealV2 with WhiteList integration", accounts => {
         await instance.CreateMassPools(Token.address, startTimeStamps, finishTimeStamps, startAmounts, owners, { from: fromAddress, value: amount * numberOfPools })
         const contractBal = await web3.eth.getBalance(instance.address)
         assert.equal(contractBal, amount * numberOfPools, 'invalid contract balance')
-        await instance.WithdrawFee(fromAddress)
+        const oldBal = new BigNumber(await web3.eth.getBalance(owner))
+        await instance.WithdrawFee(constants.ZERO_ADDRESS, owner)
+        const bal = new BigNumber(await web3.eth.getBalance(owner))
+        assert.equal(bal.toString(), BigNumber.sum(oldBal, contractBal).toString())
     })
 
     it('should pay fee when create pool wrt time', async () => {
@@ -88,7 +96,10 @@ contract("LockedDealV2 with WhiteList integration", accounts => {
         await instance.CreatePoolsWrtTime(Token.address, startTimeStamps, finishTimeStamps, startAmounts, owners, { from: fromAddress, value: amount * numberOfOwners * numberOfTimestamps })
         const contractBal = await web3.eth.getBalance(instance.address)
         assert.equal(contractBal, amount * numberOfOwners * numberOfTimestamps, 'invalid contract balance')
-        await instance.WithdrawFee(fromAddress)
+        const oldBal = new BigNumber(await web3.eth.getBalance(owner))
+        await instance.WithdrawFee(constants.ZERO_ADDRESS, owner)
+        const bal = new BigNumber(await web3.eth.getBalance(owner))
+        assert.equal(bal.toString(), BigNumber.sum(oldBal, contractBal).toString())
     })
 
     describe('enable white list filter', () => {
