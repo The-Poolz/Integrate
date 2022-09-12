@@ -44,6 +44,7 @@ contract("MultiSender and WhiteList integration tests", (accounts) => {
         await feeToken.approve(instance.address, fee)
         await instance.MultiSendERC20(token.address, accounts, amounts)
         const feeBal = await feeToken.balanceOf(instance.address)
+        await instance.WithdrawFee(feeToken.address, accounts[0])
         assert.equal(oldFeeBal, '0')
         assert.equal(parseInt(oldFeeBal) + fee, feeBal.toString())
     })
@@ -55,8 +56,8 @@ contract("MultiSender and WhiteList integration tests", (accounts) => {
         const oldEthBal = await web3.eth.getBalance(instance.address)
         await instance.MultiSendEth(accounts, amounts, {value: amount * amounts.length})
         const ethBal = await web3.eth.getBalance(instance.address)
-        assert.equal(oldEthBal, ethBal)
         assert.equal(ethBal.toString(), '0')
+        assert.equal(oldEthBal, ethBal)
         await instance.SetFeeToken(feeToken.address)
         await truffleAssert.reverts(instance.MultiSendEth(accounts, amounts), 
         "no allowance")
@@ -64,8 +65,8 @@ contract("MultiSender and WhiteList integration tests", (accounts) => {
         await feeToken.approve(instance.address, fee)
         await instance.MultiSendEth(accounts, amounts, {value: amount * amounts.length})
         const feeBal = await feeToken.balanceOf(instance.address)
-        assert.equal(oldFeeBal, '0')
-        assert.equal(parseInt(oldFeeBal) + fee, feeBal.toString())
+        assert.equal(oldFeeBal, '0', "invalid balance 1")
+        assert.equal(parseInt(oldFeeBal) + fee, feeBal.toString(), "invalid balance 2")
     })
 
     it('(multi ETH) pay with erc20 dicount', async () => {
