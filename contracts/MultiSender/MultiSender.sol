@@ -2,6 +2,7 @@
 pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 import "poolz-helper-v2/contracts/Array.sol";
 import "./MultiManageable.sol";
 
@@ -50,7 +51,15 @@ contract MultiSender is MultiManageable {
         PayFee(fee);
         if (fee > 0 && FeeToken == address(0)) value -= fee;
         uint256 amount = Array.getArraySum(_balances);
-        require(value == amount, "Insufficient eth value sent!");
+        require(
+            value == amount,
+            string.concat(
+                "Reqired Amount=",
+                Strings.toString(amount),
+                " Fee=",
+                Strings.toString(fee)
+            )
+        );
         for (uint256 i; i < _users.length; i++) {
             _users[i].transfer(_balances[i]);
         }
@@ -73,7 +82,10 @@ contract MultiSender is MultiManageable {
         uint256 fee = _calcFee();
         PayFee(fee);
         if (FeeToken == address(0)) {
-            require(msg.value == fee, "Insufficient eth value sent!");
+            require(
+                msg.value == fee,
+                string.concat("Reqired ETH fee=", Strings.toString(fee))
+            );
         }
         for (uint256 i; i < _users.length; i++) {
             IERC20(_token).transferFrom(msg.sender, _users[i], _balances[i]);
