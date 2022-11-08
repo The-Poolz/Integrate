@@ -22,6 +22,8 @@ cp -a ./node_modules/poolz-multi-sender/contracts/. ./contracts/MultiSender
 
 cp -a ./node_modules/poolz-delay-vault/contracts/. ./contracts/DelayVault
 
+cp -a ./node_modules/poolz-multi-withdraw/contracts/. ./contracts/MultiWithdraw
+
 cp -a ./node_modules/poolz-back/test/General/. ./test/01_PoolzBack
 
 cp -a ./node_modules/poolz-whitelist/test/. ./test/02_WhiteList
@@ -45,5 +47,7 @@ cp -a ./node_modules/poolz-flex-staking/test/. ./test/FlexStaking
 cp -a ./node_modules/poolz-multi-sender/test/. ./test/MultiSender
 
 cp -a ./node_modules/poolz-delay-vault/test/. ./test/DelayVault
+
+cp -a ./node_modules/poolz-multi-withdraw/test/. ./test/MultiWithdraw
 #temporary fix for naming error of TestToken in Benefit tests
 #sed -i 's/"TestToken"/"Token"/g' test/4_Benefit/test.js
