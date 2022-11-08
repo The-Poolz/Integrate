@@ -22,18 +22,13 @@ contract PoolsData is Pools {
         return poolsMap[msg.sender];
     }
 
-    function GetPoolBaseData(uint256 _Id)
+    function GetPoolBaseData(
+        uint256 _Id
+    )
         public
         view
         isPoolId(_Id)
-        returns (
-            address,
-            address,
-            uint256,
-            uint256,
-            uint256,
-            uint256
-        )
+        returns (address, address, uint256, uint256, uint256, uint256)
     {
         return (
             pools[_Id].BaseData.Token,
@@ -45,18 +40,13 @@ contract PoolsData is Pools {
         );
     }
 
-    function GetPoolMoreData(uint256 _Id)
+    function GetPoolMoreData(
+        uint256 _Id
+    )
         public
         view
         isPoolId(_Id)
-        returns (
-            uint64,
-            uint256,
-            uint256,
-            uint256,
-            uint256,
-            bool
-        )
+        returns (uint64, uint256, uint256, uint256, uint256, bool)
     {
         return (
             pools[_Id].MoreData.LockedUntil,
@@ -68,16 +58,9 @@ contract PoolsData is Pools {
         );
     }
 
-    function GetPoolExtraData(uint256 _Id)
-        public
-        view
-        isPoolId(_Id)
-        returns (
-            bool,
-            uint256,
-            address
-        )
-    {
+    function GetPoolExtraData(
+        uint256 _Id
+    ) public view isPoolId(_Id) returns (bool, uint256, address) {
         return (
             pools[_Id].MoreData.TookLeftOvers,
             pools[_Id].MoreData.WhiteListId,
@@ -85,12 +68,9 @@ contract PoolsData is Pools {
         );
     }
 
-    function IsReadyWithdrawLeftOvers(uint256 _PoolId)
-        public
-        view
-        isPoolId(_PoolId)
-        returns (bool)
-    {
+    function IsReadyWithdrawLeftOvers(
+        uint256 _PoolId
+    ) public view isPoolId(_PoolId) returns (bool) {
         return
             pools[_PoolId].BaseData.FinishTime <= now &&
             pools[_PoolId].MoreData.Lefttokens > 0 &&
@@ -98,11 +78,9 @@ contract PoolsData is Pools {
     }
 
     //@dev no use of revert to make sure the loop will work
-    function WithdrawLeftOvers(uint256 _PoolId)
-        public
-        isPoolId(_PoolId)
-        returns (bool)
-    {
+    function WithdrawLeftOvers(
+        uint256 _PoolId
+    ) public isPoolId(_PoolId) returns (bool) {
         //pool is finished + got left overs + did not took them
         if (IsReadyWithdrawLeftOvers(_PoolId)) {
             pools[_PoolId].MoreData.TookLeftOvers = true;
@@ -117,12 +95,9 @@ contract PoolsData is Pools {
     }
 
     //calculate the status of a pool
-    function GetPoolStatus(uint256 _id)
-        public
-        view
-        isPoolId(_id)
-        returns (PoolStatus)
-    {
+    function GetPoolStatus(
+        uint256 _id
+    ) public view isPoolId(_id) returns (PoolStatus) {
         //Don't like the logic here - ToDo Boolean checks (truth table)
         if (now < pools[_id].MoreData.StartTime) return PoolStatus.PreMade;
         if (

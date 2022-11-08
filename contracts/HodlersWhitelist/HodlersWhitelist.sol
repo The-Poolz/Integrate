@@ -19,11 +19,9 @@ contract HodlersWhitelist is Manageable {
         MaxUsersLimit = _limit;
     }
 
-    function CreateManualWhiteList(uint256 _ChangeUntil)
-        external
-        onlyOwnerOrGov
-        returns (uint256 Id)
-    {
+    function CreateManualWhiteList(
+        uint256 _ChangeUntil
+    ) external onlyOwnerOrGov returns (uint256 Id) {
         WhitelistSettings[WhiteListCount] = WhiteListItem(
             msg.sender,
             _ChangeUntil,
@@ -35,16 +33,17 @@ contract HodlersWhitelist is Manageable {
         return MainWhitelistId;
     }
 
-    function ChangeCreator(uint256 _Id, address _NewCreator)
-        external
-        ValidateId(_Id)
-        OnlyCreator(_Id)
-        TimeRemaining(_Id)
-    {
+    function ChangeCreator(
+        uint256 _Id,
+        address _NewCreator
+    ) external ValidateId(_Id) OnlyCreator(_Id) TimeRemaining(_Id) {
         WhitelistSettings[_Id].Creator = _NewCreator;
     }
 
-    function AddAddress(uint256 _Id, address[] calldata _Users)
+    function AddAddress(
+        uint256 _Id,
+        address[] calldata _Users
+    )
         external
         ValidateId(_Id)
         OnlyCreator(_Id)
@@ -60,7 +59,10 @@ contract HodlersWhitelist is Manageable {
         }
     }
 
-    function RemoveAddress(uint256 _Id, address[] calldata _Users)
+    function RemoveAddress(
+        uint256 _Id,
+        address[] calldata _Users
+    )
         external
         OnlyCreator(_Id)
         TimeRemaining(_Id)

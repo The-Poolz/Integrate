@@ -4,7 +4,10 @@ pragma solidity ^0.6.0;
 import "./LockedPoolz.sol";
 
 contract LockedControl is LockedPoolz {
-    function TransferPoolOwnership(uint256 _PoolId, address _NewOwner)
+    function TransferPoolOwnership(
+        uint256 _PoolId,
+        address _NewOwner
+    )
         external
         isPoolValid(_PoolId)
         isPoolOwner(_PoolId)
@@ -54,12 +57,10 @@ contract LockedControl is LockedPoolz {
         emit PoolApproval(_PoolId, _Spender, _Amount);
     }
 
-    function GetPoolAllowance(uint256 _PoolId, address _Address)
-        public
-        view
-        isPoolValid(_PoolId)
-        returns (uint256)
-    {
+    function GetPoolAllowance(
+        uint256 _PoolId,
+        address _Address
+    ) public view isPoolValid(_PoolId) returns (uint256) {
         return AllPoolz[_PoolId].Allowance[_Address];
     }
 
@@ -143,11 +144,9 @@ contract LockedControl is LockedPoolz {
         return (firstPoolId, lastPoolId);
     }
 
-    function getArraySum(uint256[] calldata _array)
-        internal
-        pure
-        returns (uint256)
-    {
+    function getArraySum(
+        uint256[] calldata _array
+    ) internal pure returns (uint256) {
         uint256 sum = 0;
         for (uint256 i = 0; i < _array.length; i++) {
             sum = sum + _array[i];

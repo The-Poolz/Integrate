@@ -21,7 +21,11 @@ contract POOLZSYNT is ERC20, ERC20Capped, ERC20Burnable, Manageable {
         address _owner,
         address _lockedDealAddress,
         address _whitelistAddress
-    ) public ERC20(_name, _symbol) ERC20Capped(_cap * 10**uint256(_decimals)) {
+    )
+        public
+        ERC20(_name, _symbol)
+        ERC20Capped(_cap * 10 ** uint256(_decimals))
+    {
         require(_decimals <= 18, "Decimal more than 18");
         _setupDecimals(_decimals);
         _mint(_owner, cap());
@@ -73,10 +77,9 @@ contract POOLZSYNT is ERC20, ERC20Capped, ERC20Burnable, Manageable {
         ActivateSynthetic(balanceOf(_msgSender()));
     }
 
-    function ActivateSynthetic(uint256 _amountToActivate)
-        public
-        tokenReady(true)
-    {
+    function ActivateSynthetic(
+        uint256 _amountToActivate
+    ) public tokenReady(true) {
         (
             uint256 amountToBurn,
             uint256 CreditableAmount,
@@ -110,16 +113,13 @@ contract POOLZSYNT is ERC20, ERC20Capped, ERC20Burnable, Manageable {
         assert(amountToBurn == _amountToActivate);
     }
 
-    function getActivationResult(uint256 _amountToActivate)
+    function getActivationResult(
+        uint256 _amountToActivate
+    )
         public
         view
         tokenReady(true)
-        returns (
-            uint256,
-            uint256,
-            uint64[] memory,
-            uint256[] memory
-        )
+        returns (uint256, uint256, uint64[] memory, uint256[] memory)
     {
         uint256 TotalTokens;
         uint256 CreditableAmount;

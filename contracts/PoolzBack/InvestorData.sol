@@ -10,16 +10,9 @@ contract InvestorData is Invest {
         return InvestorsMap[msg.sender];
     }
 
-    function GetInvestmentData(uint256 _id)
-        public
-        view
-        returns (
-            uint256,
-            address,
-            uint256,
-            uint256
-        )
-    {
+    function GetInvestmentData(
+        uint256 _id
+    ) public view returns (uint256, address, uint256, uint256) {
         return (
             Investors[_id].Poolid,
             Investors[_id].InvestorAddress,

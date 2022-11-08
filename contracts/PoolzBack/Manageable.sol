@@ -17,7 +17,7 @@ contract Manageable is ETHHelper, ERC20Helper, PozBenefit, Pausable {
         //PoolPrice = 0; // Price for create a pool
         MaxDuration = 60 * 60 * 24 * 30 * 6; // half year
         MinETHInvest = 10000; // for percent calc
-        MaxETHInvest = 100 * 10**18; // 100 eth per wallet
+        MaxETHInvest = 100 * 10 ** 18; // 100 eth per wallet
         //WhiteList_Address = address(0x0);
     }
 
@@ -66,10 +66,9 @@ contract Manageable is ETHHelper, ERC20Helper, PozBenefit, Pausable {
             IWhiteList(WhiteList_Address).Check(_address, MCWhitelistId) > 0;
     }
 
-    function SetWhiteList_Address(address _WhiteList_Address)
-        public
-        onlyOwnerOrGov
-    {
+    function SetWhiteList_Address(
+        address _WhiteList_Address
+    ) public onlyOwnerOrGov {
         WhiteList_Address = _WhiteList_Address;
     }
 
@@ -77,10 +76,10 @@ contract Manageable is ETHHelper, ERC20Helper, PozBenefit, Pausable {
         Benefit_Address = _benefitAddress;
     }
 
-    function SetMinMaxETHInvest(uint256 _MinETHInvest, uint256 _MaxETHInvest)
-        public
-        onlyOwnerOrGov
-    {
+    function SetMinMaxETHInvest(
+        uint256 _MinETHInvest,
+        uint256 _MaxETHInvest
+    ) public onlyOwnerOrGov {
         MinETHInvest = _MinETHInvest;
         MaxETHInvest = _MaxETHInvest;
     }
@@ -93,10 +92,10 @@ contract Manageable is ETHHelper, ERC20Helper, PozBenefit, Pausable {
         MaxERC20Invest = _MaxERC20Invest;
     }
 
-    function SetMinMaxDuration(uint256 _minDuration, uint256 _maxDuration)
-        public
-        onlyOwnerOrGov
-    {
+    function SetMinMaxDuration(
+        uint256 _minDuration,
+        uint256 _maxDuration
+    ) public onlyOwnerOrGov {
         MinDuration = _minDuration;
         MaxDuration = _maxDuration;
     }
@@ -105,21 +104,15 @@ contract Manageable is ETHHelper, ERC20Helper, PozBenefit, Pausable {
         PoolPrice = _PoolPrice;
     }
 
-    function SetFee(uint256 _fee)
-        public
-        onlyOwnerOrGov
-        PercentCheckOk(_fee)
-        LeftIsBigger(_fee, PozFee)
-    {
+    function SetFee(
+        uint256 _fee
+    ) public onlyOwnerOrGov PercentCheckOk(_fee) LeftIsBigger(_fee, PozFee) {
         Fee = _fee;
     }
 
-    function SetPOZFee(uint256 _fee)
-        public
-        onlyOwnerOrGov
-        PercentCheckOk(_fee)
-        LeftIsBigger(Fee, _fee)
-    {
+    function SetPOZFee(
+        uint256 _fee
+    ) public onlyOwnerOrGov PercentCheckOk(_fee) LeftIsBigger(Fee, _fee) {
         PozFee = _fee;
     }
 

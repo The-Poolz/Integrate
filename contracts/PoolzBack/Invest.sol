@@ -47,7 +47,9 @@ contract Invest is PoolsData {
     }
 
     //@dev Send in wei
-    function InvestETH(uint256 _PoolId)
+    function InvestETH(
+        uint256 _PoolId
+    )
         external
         payable
         ReceivETH(msg.value, msg.sender, MinETHInvest)
@@ -74,7 +76,10 @@ contract Invest is PoolsData {
         RegisterInvest(_PoolId, Tokens);
     }
 
-    function InvestERC20(uint256 _PoolId, uint256 _Amount)
+    function InvestERC20(
+        uint256 _PoolId,
+        uint256 _Amount
+    )
         external
         whenNotPaused
         CheckTime(pools[_PoolId].MoreData.StartTime)
@@ -197,9 +202,9 @@ contract Invest is PoolsData {
             LastRegisterWhitelist(_Sender, pools[_Pid].MoreData.WhiteListId);
             result = SafeMath.mul(msgValue, pools[_Pid].BaseData.Rate);
         }
-        if (result >= 10**21) {
+        if (result >= 10 ** 21) {
             if (pools[_Pid].MoreData.Is21DecimalRate) {
-                result = SafeMath.div(result, 10**21);
+                result = SafeMath.div(result, 10 ** 21);
             }
             require(
                 result <= pools[_Pid].MoreData.Lefttokens,
@@ -215,10 +220,10 @@ contract Invest is PoolsData {
         return IPOZBenefit(Benefit_Address).IsPOZHolder(_Sender);
     }
 
-    function LastRegisterWhitelist(address _Sender, uint256 _Id)
-        internal
-        returns (bool)
-    {
+    function LastRegisterWhitelist(
+        address _Sender,
+        uint256 _Id
+    ) internal returns (bool) {
         if (_Id == 0) return true; //turn-off
         IWhiteList(WhiteList_Address).LastRoundRegister(_Sender, _Id);
         return true;

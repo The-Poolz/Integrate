@@ -46,11 +46,7 @@ contract WhiteListHelper {
     uint256 public WhiteListCost;
     uint256 public WhiteListCount;
 
-    function _AddAddress(
-        uint256 _Id,
-        address user,
-        uint256 amount
-    ) internal {
+    function _AddAddress(uint256 _Id, address user, uint256 amount) internal {
         WhitelistDB[_Id][user] = amount;
     }
 

@@ -36,12 +36,9 @@ contract LockedManageable is
         isTokenFilterOn = !isTokenFilterOn;
     }
 
-    function isTokenWithoutFee(address _tokenAddress)
-        public
-        view
-        notZeroAddress(WhiteList_Address)
-        returns (bool)
-    {
+    function isTokenWithoutFee(
+        address _tokenAddress
+    ) public view notZeroAddress(WhiteList_Address) returns (bool) {
         return
             IWhiteList(WhiteList_Address).Check(
                 _tokenAddress,
@@ -49,11 +46,9 @@ contract LockedManageable is
             ) > 0;
     }
 
-    function isTokenWhiteListed(address _tokenAddress)
-        public
-        view
-        returns (bool)
-    {
+    function isTokenWhiteListed(
+        address _tokenAddress
+    ) public view returns (bool) {
         return
             !isTokenFilterOn ||
             IWhiteList(WhiteList_Address).Check(
@@ -63,12 +58,9 @@ contract LockedManageable is
             0;
     }
 
-    function isUserWithoutFee(address _UserAddress)
-        public
-        view
-        notZeroAddress(WhiteList_Address)
-        returns (bool)
-    {
+    function isUserWithoutFee(
+        address _UserAddress
+    ) public view notZeroAddress(WhiteList_Address) returns (bool) {
         return
             IWhiteList(WhiteList_Address).Check(_UserAddress, UserWhiteListId) >
             0;

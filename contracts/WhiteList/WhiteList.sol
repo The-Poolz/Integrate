@@ -30,11 +30,10 @@ contract WhiteList is WhiteListHelper, Ownable {
         WhiteListCost = _newCost;
     }
 
-    function CreateManualWhiteList(uint256 _ChangeUntil, address _Contract)
-        public
-        payable
-        returns (uint256 Id)
-    {
+    function CreateManualWhiteList(
+        uint256 _ChangeUntil,
+        address _Contract
+    ) public payable returns (uint256 Id) {
         require(msg.value >= WhiteListCost, "ether not enough");
         WhitelistSettings[WhiteListCount] = WhiteListItem(
             /*_Limit == 0 ? type(uint).max :*/
@@ -50,21 +49,17 @@ contract WhiteList is WhiteListHelper, Ownable {
         return temp;
     }
 
-    function ChangeCreator(uint256 _Id, address _NewCreator)
-        external
-        ValidateId(_Id)
-        OnlyCreator(_Id)
-        TimeRemaining(_Id)
-    {
+    function ChangeCreator(
+        uint256 _Id,
+        address _NewCreator
+    ) external ValidateId(_Id) OnlyCreator(_Id) TimeRemaining(_Id) {
         WhitelistSettings[_Id].Creator = _NewCreator;
     }
 
-    function ChangeContract(uint256 _Id, address _NewContract)
-        external
-        ValidateId(_Id)
-        OnlyCreator(_Id)
-        TimeRemaining(_Id)
-    {
+    function ChangeContract(
+        uint256 _Id,
+        address _NewContract
+    ) external ValidateId(_Id) OnlyCreator(_Id) TimeRemaining(_Id) {
         WhitelistSettings[_Id].Contract = _NewContract;
     }
 
@@ -92,7 +87,10 @@ contract WhiteList is WhiteListHelper, Ownable {
         }
     }
 
-    function RemoveAddress(uint256 _Id, address[] calldata _Users)
+    function RemoveAddress(
+        uint256 _Id,
+        address[] calldata _Users
+    )
         external
         OnlyCreator(_Id)
         TimeRemaining(_Id)
@@ -104,11 +102,7 @@ contract WhiteList is WhiteListHelper, Ownable {
         }
     }
 
-    function Register(
-        address _Subject,
-        uint256 _Id,
-        uint256 _Amount
-    ) external {
+    function Register(address _Subject, uint256 _Id, uint256 _Amount) external {
         if (_Id == 0) return;
         require(
             msg.sender == WhitelistSettings[_Id].Contract,

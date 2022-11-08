@@ -35,11 +35,9 @@ contract Manageable is ETHHelper, ERC20Helper, PozBenefit {
         isTokenFilterOn = !isTokenFilterOn;
     }
 
-    function isTokenWhiteListed(address _tokenAddress)
-        public
-        view
-        returns (bool)
-    {
+    function isTokenWhiteListed(
+        address _tokenAddress
+    ) public view returns (bool) {
         return
             !isTokenFilterOn ||
             IWhiteList(WhiteList_Address).Check(_tokenAddress, WhiteListId) > 0;
@@ -61,21 +59,15 @@ contract Manageable is ETHHelper, ERC20Helper, PozBenefit {
         return Fee;
     }
 
-    function SetFee(uint16 _fee)
-        public
-        onlyOwner
-        PercentCheckOk(_fee)
-        LeftIsBigger(_fee, PozFee)
-    {
+    function SetFee(
+        uint16 _fee
+    ) public onlyOwner PercentCheckOk(_fee) LeftIsBigger(_fee, PozFee) {
         Fee = _fee;
     }
 
-    function SetPOZFee(uint16 _fee)
-        public
-        onlyOwner
-        PercentCheckOk(_fee)
-        LeftIsBigger(Fee, _fee)
-    {
+    function SetPOZFee(
+        uint16 _fee
+    ) public onlyOwner PercentCheckOk(_fee) LeftIsBigger(Fee, _fee) {
         PozFee = _fee;
     }
 

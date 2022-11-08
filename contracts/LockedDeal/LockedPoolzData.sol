@@ -8,17 +8,9 @@ contract LockedPoolzData is LockedControl {
         return MyPoolz[msg.sender];
     }
 
-    function GetPoolData(uint256 _id)
-        public
-        view
-        isPoolValid(_id)
-        returns (
-            uint64,
-            uint256,
-            address,
-            address
-        )
-    {
+    function GetPoolData(
+        uint256 _id
+    ) public view isPoolValid(_id) returns (uint64, uint256, address, address) {
         Pool storage pool = AllPoolz[_id];
         require(
             pool.Owner == msg.sender || pool.Allowance[msg.sender] > 0,

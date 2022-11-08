@@ -2,11 +2,7 @@ os: linux
 dist: focal
 language: node_js
 node_js: "16.16.0"
-addons:
-  apt:
-    sources: deadsnakes
-    packages: python3.8
-install: npm i && npm i -g truffle
+install: npm i && npm i -g truffle@5.5.22
 script:
   - bash ./bin/build.sh
   - truffle run coverage --network development

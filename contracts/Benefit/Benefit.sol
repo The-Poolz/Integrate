@@ -28,10 +28,10 @@ contract Benefit is IPOZBenefit, Ownable {
         MinHold = _MinHold;
     }
 
-    function AddNewLpCheck(address _Token, address _LpContract)
-        public
-        onlyOwner
-    {
+    function AddNewLpCheck(
+        address _Token,
+        address _LpContract
+    ) public onlyOwner {
         CheckList[ChecksCount] = BalanceCheckData(false, _Token, _LpContract);
         ChecksCount++;
     }
@@ -63,28 +63,23 @@ contract Benefit is IPOZBenefit, Ownable {
         ChecksCount = 0;
     }
 
-    function CheckBalance(address _Token, address _Subject)
-        internal
-        view
-        returns (uint256)
-    {
+    function CheckBalance(
+        address _Token,
+        address _Subject
+    ) internal view returns (uint256) {
         return ERC20(_Token).balanceOf(_Subject);
     }
 
-    function CheckStaking(address _Contract, address _Subject)
-        internal
-        view
-        returns (uint256)
-    {
+    function CheckStaking(
+        address _Contract,
+        address _Subject
+    ) internal view returns (uint256) {
         return IStaking(_Contract).stakeOf(_Subject);
     }
 
-    function IsPOZHolder(address _Subject)
-        external
-        view
-        override
-        returns (bool)
-    {
+    function IsPOZHolder(
+        address _Subject
+    ) external view override returns (bool) {
         return CalcTotal(_Subject) >= MinHold;
     }
 

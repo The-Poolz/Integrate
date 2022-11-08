@@ -71,18 +71,18 @@ contract Manageable is ERC20Helper, GovManager {
         LockedDealAddress = lockedDeal;
     }
 
-    function _SetupWhitelist(address _whitelistAddress, uint256 _whitelistId)
-        internal
-        onlyOwnerOrGov
-    {
+    function _SetupWhitelist(
+        address _whitelistAddress,
+        uint256 _whitelistId
+    ) internal onlyOwnerOrGov {
         WhitelistAddress = _whitelistAddress;
         WhitelistId = _whitelistId;
     }
 
-    function registerWhitelist(address _address, uint256 _amount)
-        internal
-        returns (bool)
-    {
+    function registerWhitelist(
+        address _address,
+        uint256 _amount
+    ) internal returns (bool) {
         if (WhitelistId == 0) return true; //turn-off
         IWhiteList(WhitelistAddress).Register(_address, WhitelistId, _amount);
         return true;
