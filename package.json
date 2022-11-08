@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "prettier": "prettier --write contracts/ && prettier --write test/"
+  },
   "dependencies": {
     "@openzeppelin/contracts": "^4.6.0",
     "@uniswap/v2-core": "^1.0.1",
@@ -31,8 +34,11 @@
     "chai-bignumber": "^2.0.2",
     "coveralls": "^3.1.0",
     "mocha": "^6.2.2",
+    "truffle": "5.5.22",
     "node-fetch": ">=2.6.1",
     "openzeppelin-solidity": "^3.4.1",
+    "prettier": "^2.7.1",
+    "prettier-plugin-solidity": "^1.0.0-dev.23",
     "sol-merger": "^3.1.0",
     "solidity-coverage": "^0.7.21",
     "truffle-plugin-verify": "^0.5.7",

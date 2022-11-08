@@ -12,11 +12,7 @@ contract WhiteListConvertor is Manageable {
         WhiteListAddress = _WhiteListAddress;
     }
 
-    function Register(
-        address _Subject,
-        uint256 _Id,
-        uint256 _Amount
-    ) external {
+    function Register(address _Subject, uint256 _Id, uint256 _Amount) external {
         require(
             msg.sender == Identifiers[_Id].Contract,
             "Only the Contract can call this"
@@ -36,11 +32,10 @@ contract WhiteListConvertor is Manageable {
         IWhiteList(WhiteListAddress).LastRoundRegister(_Subject, _Id);
     }
 
-    function Check(address _Subject, uint256 _Id)
-        external
-        view
-        returns (uint256)
-    {
+    function Check(
+        address _Subject,
+        uint256 _Id
+    ) external view returns (uint256) {
         uint256 convertAmount = IWhiteList(WhiteListAddress).Check(
             _Subject,
             _Id

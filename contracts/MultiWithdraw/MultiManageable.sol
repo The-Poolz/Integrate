@@ -11,10 +11,9 @@ contract MultiManageable is GovManager {
     address public LockedDealAddress;
     uint256 public maxTransactionLimit;
 
-    function setLockedDealAddress(address _LockedDealAddress)
-        public
-        onlyOwnerOrGov
-    {
+    function setLockedDealAddress(
+        address _LockedDealAddress
+    ) public onlyOwnerOrGov {
         require(
             LockedDealAddress != _LockedDealAddress,
             "Can't set the same LockedDeal address"

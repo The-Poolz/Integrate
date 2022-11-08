@@ -4,7 +4,7 @@ pragma solidity ^0.6.0;
 import "./InvestorData.sol";
 
 contract ThePoolz is InvestorData {
-    constructor() public {    }
+    constructor() public {}
 
     function WithdrawETHFee(address payable _to) public onlyOwner {
         _to.transfer(address(this).balance); // keeps only fee eth on contract //To Do need to take 16% to burn!!!
@@ -15,5 +15,4 @@ contract ThePoolz is InvestorData {
         FeeMap[_Token] = 0;
         TransferToken(_Token, _to, temp);
     }
-    
 }

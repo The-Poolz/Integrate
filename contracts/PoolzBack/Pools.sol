@@ -41,7 +41,7 @@ contract Pools is Manageable {
         bool Is21DecimalRate; //If true, the rate will be rate*10^-21
     }
 
-    function isPoolLocked(uint256 _id) public view returns(bool){
+    function isPoolLocked(uint256 _id) public view returns (bool) {
         return pools[_id].MoreData.LockedUntil > now;
     }
 
@@ -64,8 +64,14 @@ contract Pools is Manageable {
             _MainCoin == address(0x0) || IsERC20Maincoin(_MainCoin),
             "Main coin not in list"
         );
-        require(_FinishTime  < SafeMath.add(MaxDuration, now), "Pool duration can't be that long");
-        require(_LockedUntil < SafeMath.add(MaxDuration, now) , "Locked value can't be that long");
+        require(
+            _FinishTime < SafeMath.add(MaxDuration, now),
+            "Pool duration can't be that long"
+        );
+        require(
+            _LockedUntil < SafeMath.add(MaxDuration, now),
+            "Locked value can't be that long"
+        );
         require(
             _Rate <= _POZRate,
             "POZ holders need to have better price (or the same)"
@@ -77,16 +83,15 @@ contract Pools is Manageable {
             "Need more then MinDuration"
         ); // check if the time is OK
         TransferInToken(_Token, msg.sender, _StartAmount);
-        uint256 Openforall =
-            (_WhiteListId == 0) 
-                ? _Now //and this
-                : SafeMath.add(
-                    SafeMath.div(
-                        SafeMath.mul(SafeMath.sub(_FinishTime, _Now), PozTimer),
-                        10000
-                    ),
-                    _Now
-                );
+        uint256 Openforall = (_WhiteListId == 0)
+            ? _Now //and this
+            : SafeMath.add(
+                SafeMath.div(
+                    SafeMath.mul(SafeMath.sub(_FinishTime, _Now), PozTimer),
+                    10000
+                ),
+                _Now
+            );
         //register the pool
         pools[poolsCount] = Pool(
             PoolBaseData(

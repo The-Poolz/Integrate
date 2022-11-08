@@ -16,10 +16,9 @@ contract MultiWithdraw is MultiManageable {
         _;
     }
 
-    function MultiWithdrawTokens(uint256[] memory _poolIds)
-        public
-        notZeroAddress(LockedDealAddress)
-    {
+    function MultiWithdrawTokens(
+        uint256[] memory _poolIds
+    ) public notZeroAddress(LockedDealAddress) {
         require(
             maxTransactionLimit >= _poolIds.length,
             "Max array length limit exceeded"
