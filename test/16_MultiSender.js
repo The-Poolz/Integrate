@@ -95,14 +95,42 @@ contract("MultiSender and WhiteList integration tests", (accounts) => {
 
     it("(multi ETH) pay with eth dicount", async () => {
         await instance.SetFeeToken(constants.ZERO_ADDRESS)
-        await truffleAssert.reverts(
-            instance.MultiSendEth(accounts, amounts, { value: amount * amounts.length + discount }),
-            "Insufficient eth value sent!"
-        )
+        await truffleAssert.reverts(instance.MultiSendEth(accounts, amounts, {value: amount * amounts.length + discount}), 
+        "Reqired Amount=" + amount * amounts.length + " Fee=" + amount)
         await whiteList.AddAddress(whiteListId, [accounts[0]], [discount])
         const oldEthBal = await web3.eth.getBalance(instance.address)
         await instance.MultiSendEth(accounts, amounts, { value: amount * amounts.length + discount })
         const ethBal = await web3.eth.getBalance(instance.address)
         assert.equal(parseInt(oldEthBal) + discount, ethBal)
+    })
+
+    it('should pass MultiSendEth', async () => {
+        await truffleAssert.passes(instance.MultiSendEth(accounts, amounts, {value: amount * amounts.length + discount * 2}))
+        await instance.SetFeeAmount(0)
+        await truffleAssert.passes(instance.MultiSendEth(accounts, amounts, {value: amount * amounts.length}))
+        await instance.SetFeeToken(feeToken.address)
+        await truffleAssert.passes(instance.MultiSendEth(accounts, amounts, {value: amount * amounts.length}))
+    })
+
+    it("should pass MultiSendERC20", async () => {
+        await instance.SetFeeToken(constants.ZERO_ADDRESS)
+        await token.approve(instance.address, amount * amounts.length)
+        await truffleAssert.passes(instance.MultiSendERC20(token.address, accounts, amounts))
+        await instance.SetFeeAmount(amount)
+        await token.approve(instance.address, amount * amounts.length)
+        await truffleAssert.passes(instance.MultiSendERC20(token.address, accounts, amounts, {value: amount}))
+    })
+
+    it("should revert MultiSendERC20 when sending the wrong fee", async () => {
+        await truffleAssert.reverts(instance.MultiSendERC20(token.address, accounts, amounts, {value: amount + 1}),
+            "Reqired ETH fee=" + amount)
+        await truffleAssert.reverts(instance.MultiSendERC20(token.address, accounts, amounts, {value: amount - 1}), "Not Enough Fee Provided")
+    })
+
+    it("should revert MultiSendETH when sending the wrong fee", async () => {
+        await truffleAssert.reverts(instance.MultiSendEth(accounts, amounts, {value: amount * amounts.length + amount + 1}),
+            "Reqired Amount=" + amount * amounts.length + " Fee=" + amount)
+        await truffleAssert.reverts(instance.MultiSendEth(accounts, amounts, {value: amount * amounts.length + amount - 1}), 
+            "Reqired Amount=" + amount * amounts.length + " Fee=" + amount)
     })
 })
