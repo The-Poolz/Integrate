@@ -42,7 +42,9 @@ contract VaultManageable is Pausable, GovManager {
         _;
     }
 
-    function setLockedDealAddress(address _lockedDealAddress)
+    function setLockedDealAddress(
+        address _lockedDealAddress
+    )
         public
         onlyOwnerOrGov
         uniqueAddress(_lockedDealAddress, LockedDealAddress)
@@ -50,27 +52,21 @@ contract VaultManageable is Pausable, GovManager {
         LockedDealAddress = _lockedDealAddress;
     }
 
-    function setWhiteListAddress(address _whiteListAddr)
-        public
-        onlyOwnerOrGov
-        uniqueAddress(_whiteListAddr, WhiteListAddress)
-    {
+    function setWhiteListAddress(
+        address _whiteListAddr
+    ) public onlyOwnerOrGov uniqueAddress(_whiteListAddr, WhiteListAddress) {
         WhiteListAddress = _whiteListAddr;
     }
 
-    function setWhiteListId(uint256 _id)
-        public
-        onlyOwnerOrGov
-        uniqueValue(_id, WhiteListId)
-    {
+    function setWhiteListId(
+        uint256 _id
+    ) public onlyOwnerOrGov uniqueValue(_id, WhiteListId) {
         WhiteListId = _id;
     }
 
-    function isTokenWhiteListed(address _tokenAddress)
-        public
-        view
-        returns (bool)
-    {
+    function isTokenWhiteListed(
+        address _tokenAddress
+    ) public view returns (bool) {
         return
             WhiteListAddress == address(0) ||
             WhiteListId == 0 ||

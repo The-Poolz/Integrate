@@ -8,7 +8,7 @@ const truffleAssert = require("truffle-assertions")
 const timeMachine = require("ganache-time-traveler")
 const BigNumber = require("bignumber.js")
 const { createNewWhiteList } = require("./helper")
-const constants = require('@openzeppelin/test-helpers/src/constants.js')
+const constants = require("@openzeppelin/test-helpers/src/constants.js")
 
 contract("Integration between DelayVault, LockedDeal and WhiteList", (accounts) => {
     let instance, lockedDeal, token
@@ -83,7 +83,7 @@ contract("Integration between DelayVault, LockedDeal and WhiteList", (accounts) 
             assert.equal(owner.toString(), accounts[0].toString())
         })
 
-        it('close filter', async () => {
+        it("close filter", async () => {
             await instance.setWhiteListAddress(constants.ZERO_ADDRESS)
             await token.approve(instance.address, amount)
             const tx = await instance.CreateVault(token.address, amount, week)

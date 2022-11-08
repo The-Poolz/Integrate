@@ -55,7 +55,9 @@ contract DelayVault is VaultData, ERC20Helper {
         emit NewVaultCreated(_token, _amount, _lockTime, msg.sender);
     }
 
-    function Withdraw(address _token)
+    function Withdraw(
+        address _token
+    )
         public
         whenNotPaused
         notZeroAddress(LockedDealAddress)

@@ -4,7 +4,10 @@ pragma solidity ^0.8.0;
 import "./LockedCreation.sol";
 
 contract LockedControl is LockedCreation {
-    function PoolTransfer(uint256 _PoolId, address _NewOwner)
+    function PoolTransfer(
+        uint256 _PoolId,
+        address _NewOwner
+    )
         external
         isPoolValid(_PoolId)
         isPoolOwner(_PoolId)
