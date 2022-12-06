@@ -48,6 +48,6 @@ cp -a ./node_modules/poolz-multi-sender/test/. ./test/MultiSender
 
 cp -a ./node_modules/poolz-delay-vault/test/. ./test/DelayVault
 
-cp -a ./node_modules/poolz-multi-withdraw/test/. ./test/MultiWithdraw
+# cp -a ./node_modules/poolz-multi-withdraw/test/. ./test/MultiWithdraw
 #temporary fix for naming error of TestToken in Benefit tests
 #sed -i 's/"TestToken"/"Token"/g' test/4_Benefit/test.js

@@ -148,7 +148,29 @@ contract("Integration Between Envelop Token, WhiteList and LockedDeal", (account
                         lockAmounts.push(amount)
                     }
                 }
+                let lockedAmount = new BigNumber(getSumArray(lockAmounts))
+                if (amountToActivate.comparedTo(lockedAmount.plus(creditableAmount))) {
+                    let difference = new BigNumber(amountToActivate.minus(lockedAmount.plus(creditableAmount)))
+                    if (lockedAmount == 0) {
+                        creditableAmount = creditableAmount.plus(difference)
+                    } else {
+                        for (let i = 0; i < startTimestamps.length; i++) {
+                            if (lockAmounts[i] > 0) {
+                                lockAmounts[i] = lockAmounts[i].plus(difference)
+                                break
+                            }
+                        }
+                    }
+                }
                 return { creditableAmount, lockStartTimes, lockAmounts }
+            }
+
+            const getSumArray = (_array) => {
+                let sum = new BigNumber(0)
+                for (let i = 0; i < _array.length; i++) {
+                    sum = sum.plus(_array[i])
+                }
+                return sum
             }
 
             const getLockedDealData = async (dealId) => {
@@ -286,7 +308,7 @@ contract("Integration Between Envelop Token, WhiteList and LockedDeal", (account
                 const tx = await token.WithdrawToken({ from: thirdAddress })
                 const userOriginalBalance = await originalToken.balanceOf(thirdAddress)
                 assert.equal(userOriginalBalance.toString(), sim.creditableAmount.toString())
-                //assert.equal(tx.logs[tx.logs.length - 1].args.Amount.toString(), sim.creditableAmount.toString())
+                assert.equal(tx.logs[tx.logs.length - 1].args.Amount.toString(), sim.creditableAmount.toString())
             })
 
             after(async () => {
