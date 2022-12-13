@@ -1,3 +1,5 @@
+mkdir contracts &&
+
 cp -a ./node_modules/poolz-back/contracts/. ./contracts/PoolzBack
 
 cp -a ./node_modules/poolz-locked-deal/contracts/. ./contracts/LockedDeal
