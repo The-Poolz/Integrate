@@ -4,32 +4,17 @@ pragma solidity ^0.8.0;
 import "./LockedCreation.sol";
 
 contract LockedControl is LockedCreation {
-    function PoolTransfer(
-        uint256 _PoolId,
-        address _NewOwner
-    )
+    function TransferPoolOwnership(uint256 _PoolId, address _NewOwner)
         external
         isPoolValid(_PoolId)
         isPoolOwner(_PoolId)
         notZeroAddress(_NewOwner)
+        returns (uint256 newPoolId)
     {
         Pool storage pool = AllPoolz[_PoolId];
         require(_NewOwner != pool.Owner, "Can't be the same owner");
-        require(
-            pool.FinishTime > block.timestamp,
-            "Can't create with past finish time"
-        );
-        uint256 newPoolId = CreatePool(
-            pool.Token,
-            pool.StartTime,
-            pool.FinishTime,
-            pool.StartAmount,
-            _NewOwner
-        );
-        pool.StartAmount = 0;
-        AllPoolz[newPoolId].DebitedAmount = pool.DebitedAmount;
-        pool.DebitedAmount = 0;
-        emit PoolTransferred(newPoolId, _PoolId, _NewOwner, msg.sender);
+        uint256 _remainingAmount = remainingAmount(_PoolId);
+        newPoolId = SplitPool(_PoolId, _remainingAmount, _NewOwner);
     }
 
     function SplitPoolAmount(
@@ -40,11 +25,11 @@ contract LockedControl is LockedCreation {
         external
         isPoolValid(_PoolId)
         isPoolOwner(_PoolId)
+        notZeroValue(_NewAmount)
         notZeroAddress(_NewOwner)
         returns (uint256)
     {
-        uint256 poolId = SplitPool(_PoolId, _NewAmount, _NewOwner);
-        return poolId;
+        return SplitPool(_PoolId, _NewAmount, _NewOwner);
     }
 
     function ApproveAllowance(
@@ -55,7 +40,6 @@ contract LockedControl is LockedCreation {
         external
         isPoolValid(_PoolId)
         isPoolOwner(_PoolId)
-        isLocked(_PoolId)
         notZeroAddress(_Spender)
     {
         Allowance[_PoolId][_Spender] = _Amount;
@@ -70,12 +54,12 @@ contract LockedControl is LockedCreation {
         external
         isPoolValid(_PoolId)
         isAllowed(_PoolId, _Amount)
+        notZeroValue(_Amount)
         notZeroAddress(_Address)
-        returns (uint256)
+        returns (uint256 poolId)
     {
-        uint256 poolId = SplitPool(_PoolId, _Amount, _Address);
+        poolId = SplitPool(_PoolId, _Amount, _Address);
         uint256 _NewAmount = Allowance[_PoolId][msg.sender] - _Amount;
         Allowance[_PoolId][msg.sender] = _NewAmount;
-        return poolId;
     }
 }

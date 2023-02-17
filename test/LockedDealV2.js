@@ -38,10 +38,16 @@ contract("LockedDealV2 with WhiteList integration", (accounts) => {
         const startTime = Math.floor(date.getTime() / 1000)
         const finishTime = startTime + 60 * 60 * 24 * 30
         await truffleAssert.reverts(
-            instance.CreateNewPool(Token.address, startTime, finishTime, allow, owner, { from: owner, value: "99999" }),
+            instance.CreateNewPool(Token.address, startTime, startTime, finishTime, allow, owner, {
+                from: owner,
+                value: "99999"
+            }),
             "Not Enough Fee Provided"
         )
-        await instance.CreateNewPool(Token.address, startTime, finishTime, allow, owner, { from: owner, value: amount })
+        await instance.CreateNewPool(Token.address, startTime, startTime, finishTime, allow, owner, {
+            from: owner,
+            value: amount
+        })
         const contractBal = await web3.eth.getBalance(instance.address)
         assert.equal(contractBal, amount, "invalid contract balance")
         const oldBal = new BigNumber(await web3.eth.getBalance(owner))
@@ -71,7 +77,7 @@ contract("LockedDealV2 with WhiteList integration", (accounts) => {
         finishTimeStamps.push(future - 7200)
         const startAmounts = [allow, allow, allow, allow, allow]
         const owners = [accounts[9], accounts[8], accounts[7], accounts[6], accounts[5]]
-        await instance.CreateMassPools(Token.address, startTimeStamps, finishTimeStamps, startAmounts, owners, {
+        await instance.CreateMassPools(Token.address, startTimeStamps, startTimeStamps, finishTimeStamps, startAmounts, owners, {
             from: fromAddress,
             value: amount * numberOfPools
         })
@@ -104,7 +110,7 @@ contract("LockedDealV2 with WhiteList integration", (accounts) => {
         }
         const startAmounts = [allow, allow, allow]
         const owners = [accounts[9], accounts[8], accounts[7]]
-        await instance.CreatePoolsWrtTime(Token.address, startTimeStamps, finishTimeStamps, startAmounts, owners, {
+        await instance.CreatePoolsWrtTime(Token.address, startTimeStamps, startTimeStamps, finishTimeStamps, startAmounts, owners, {
             from: fromAddress,
             value: amount * numberOfOwners * numberOfTimestamps
         })
@@ -129,7 +135,7 @@ contract("LockedDealV2 with WhiteList integration", (accounts) => {
             const startTime = Math.floor(date.getTime() / 1000)
             const finishTime = startTime + 60 * 60 * 24 * 30
             await truffleAssert.reverts(
-                instance.CreateNewPool(Token.address, startTime, finishTime, allow, owner, {
+                instance.CreateNewPool(Token.address, startTime, startTime, finishTime, allow, owner, {
                     from: owner,
                     value: amount
                 }),
@@ -148,7 +154,7 @@ contract("LockedDealV2 with WhiteList integration", (accounts) => {
             const allowance = [1]
             const whiteListId = await instance.TokenFilterWhiteListId()
             await whiteList.AddAddress(whiteListId, address, allowance)
-            await instance.CreateNewPool(Token.address, startTime, finishTime, allow, owner, {
+            await instance.CreateNewPool(Token.address, startTime, startTime, finishTime, allow, owner, {
                 from: owner,
                 value: amount
             })

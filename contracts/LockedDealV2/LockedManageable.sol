@@ -36,20 +36,22 @@ contract LockedManageable is
         isTokenFilterOn = !isTokenFilterOn;
     }
 
-    function isTokenWithoutFee(
-        address _tokenAddress
-    ) public view notZeroAddress(WhiteList_Address) returns (bool) {
+    function isTokenWithFee(address _tokenAddress) public view returns (bool) {
         return
-            IWhiteList(WhiteList_Address).Check(
+            WhiteList_Address == address(0) ||
+            !(IWhiteList(WhiteList_Address).Check(
                 _tokenAddress,
                 TokenFeeWhiteListId
-            ) > 0;
+            ) > 0);
     }
 
-    function isTokenWhiteListed(
-        address _tokenAddress
-    ) public view returns (bool) {
+    function isTokenWhiteListed(address _tokenAddress)
+        public
+        view
+        returns (bool)
+    {
         return
+            WhiteList_Address == address(0) ||
             !isTokenFilterOn ||
             IWhiteList(WhiteList_Address).Check(
                 _tokenAddress,
@@ -58,12 +60,13 @@ contract LockedManageable is
             0;
     }
 
-    function isUserWithoutFee(
-        address _UserAddress
-    ) public view notZeroAddress(WhiteList_Address) returns (bool) {
+    function isUserPaysFee(address _UserAddress) public view returns (bool) {
         return
-            IWhiteList(WhiteList_Address).Check(_UserAddress, UserWhiteListId) >
-            0;
+            WhiteList_Address == address(0) ||
+            !(IWhiteList(WhiteList_Address).Check(
+                _UserAddress,
+                UserWhiteListId
+            ) > 0);
     }
 
     function setMaxTransactionLimit(uint256 _newLimit) external onlyOwner {

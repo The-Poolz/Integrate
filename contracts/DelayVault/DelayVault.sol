@@ -3,77 +3,104 @@ pragma solidity ^0.8.0;
 
 import "poolz-helper-v2/contracts/ERC20Helper.sol";
 import "poolz-helper-v2/contracts/ETHHelper.sol";
-import "poolz-helper-v2/contracts/interfaces/ILockedDeal.sol";
-import "./VaultData.sol";
+import "poolz-helper-v2/contracts/interfaces/ILockedDealV2.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "./DelayView.sol";
 
 /// @title DelayVault core logic
 /// @author The-Poolz contract team
-contract DelayVault is VaultData, ERC20Helper {
-    event NewVaultCreated(
-        address Token,
-        uint256 Amount,
-        uint64 LockTime,
-        address Owner
-    );
-    event LockedPeriodStarted(address Token, uint256 Amount, uint64 FinishTime);
-
-    modifier isVaultNotEmpty(address _token) {
-        require(
-            VaultMap[_token][msg.sender].Amount > 0,
-            "vault is already empty"
-        );
-        _;
-    }
-
-    modifier isTokenValid(address _Token) {
-        require(isTokenWhiteListed(_Token), "Need Valid ERC20 Token");
-        _;
-    }
+contract DelayVault is DelayView, ERC20Helper, ReentrancyGuard {
+    constructor() ReentrancyGuard() {}
 
     function CreateVault(
         address _token,
         uint256 _amount,
-        uint64 _lockTime
-    ) public whenNotPaused notZeroAddress(_token) isTokenValid(_token) {
+        uint256 _startDelay,
+        uint256 _cliffDelay,
+        uint256 _finishDelay
+    )
+        external
+        whenNotPaused
+        nonReentrant
+        notZeroAddress(_token)
+        isTokenActive(_token)
+    {
+        _shortDelay(_token, _startDelay, _cliffDelay, _finishDelay); // Stack Too deep error fixing
         Vault storage vault = VaultMap[_token][msg.sender];
-        require(
-            _amount > 0 || _lockTime > vault.LockPeriod,
+        require( // for the possibility of increasing only the time parameters
+            _amount > 0 ||
+                _startDelay > vault.StartDelay ||
+                _cliffDelay > vault.CliffDelay ||
+                _finishDelay > vault.FinishDelay,
             "amount should be greater than zero"
         );
-        require(
-            _lockTime >= vault.LockPeriod,
-            "can't set a shorter blocking period than the last one"
-        );
-        require(
-            _lockTime >= GetMinDelay(_amount),
-            "minimum delay greater than lock time"
-        );
+        (
+            uint256 _startMinDelay,
+            uint256 _cliffMinDelay,
+            uint256 _finishMinDelay
+        ) = GetMinDelays(_token, _amount);
+        {
+            // Checking the minimum delay for each timing parameter.
+            _checkMinDelay(_startDelay, _startMinDelay);
+            _checkMinDelay(_cliffDelay, _cliffMinDelay);
+            _checkMinDelay(_finishDelay, _finishMinDelay);
+        }
         TransferInToken(_token, msg.sender, _amount);
-        vault.Amount += _amount;
-        vault.LockPeriod = _lockTime;
-        MyTokens[msg.sender].push(_token);
-        emit NewVaultCreated(_token, _amount, _lockTime, msg.sender);
+        vault.StartDelay = _startDelay;
+        vault.CliffDelay = _cliffDelay;
+        vault.FinishDelay = _finishDelay;
+        Array.addIfNotExsist(Users[_token], msg.sender);
+        Array.addIfNotExsist(MyTokens[msg.sender], _token);
+        emit VaultValueChanged(
+            _token,
+            msg.sender,
+            vault.Amount += _amount,
+            _startDelay,
+            _cliffDelay,
+            _finishDelay
+        );
     }
 
-    function Withdraw(
-        address _token
-    )
-        public
-        whenNotPaused
-        notZeroAddress(LockedDealAddress)
+    /** @dev Creates a new pool of tokens for a specified period or,
+         if there is no Locked Deal address, sends tokens to the owner.
+    */
+    function Withdraw(address _token)
+        external
+        nonReentrant
         isVaultNotEmpty(_token)
     {
         Vault storage vault = VaultMap[_token][msg.sender];
-        uint64 finishTime = uint64(block.timestamp) + vault.LockPeriod;
+        uint256 startDelay = block.timestamp + vault.StartDelay;
+        uint256 finishDelay = startDelay + vault.FinishDelay;
+        uint256 cliffDelay = startDelay + vault.CliffDelay;
         uint256 lockAmount = vault.Amount;
         vault.Amount = 0;
-        ApproveAllowanceERC20(_token, LockedDealAddress, lockAmount);
-        ILockedDeal(LockedDealAddress).CreateNewPool(
-            _token,
-            finishTime,
-            lockAmount,
-            msg.sender
-        );
-        emit LockedPeriodStarted(_token, lockAmount, finishTime);
+        vault.FinishDelay = vault.CliffDelay = vault.StartDelay = 0;
+        if (LockedDealAddress != address(0)) {
+            ApproveAllowanceERC20(_token, LockedDealAddress, lockAmount);
+            ILockedDealV2(LockedDealAddress).CreateNewPool(
+                _token,
+                startDelay,
+                cliffDelay,
+                finishDelay,
+                lockAmount,
+                msg.sender
+            );
+        } else {
+            TransferToken(_token, msg.sender, lockAmount);
+        }
+        emit VaultValueChanged(_token, msg.sender, 0, 0, 0, 0);
+    }
+
+    /// @dev the user can't set a time parameter less than the last one
+    function _shortDelay(
+        address _token,
+        uint256 _startDelay,
+        uint256 _cliffDelay,
+        uint256 _finishDelay
+    ) private view {
+        _shortStartDelay(_token, _startDelay);
+        _shortCliffDelay(_token, _cliffDelay);
+        _shortFinishDelay(_token, _finishDelay);
     }
 }

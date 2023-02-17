@@ -4,17 +4,20 @@ pragma solidity ^0.8.0;
 import "./LockedControl.sol";
 
 contract LockedPoolzData is LockedControl {
-    function GetAllMyPoolsId(
-        address _UserAddress
-    ) public view returns (uint256[] memory) {
+    function GetAllMyPoolsId(address _UserAddress)
+        public
+        view
+        returns (uint256[] memory)
+    {
         return MyPoolz[_UserAddress];
     }
 
     // function GetMyPoolzwithBalance
-    // reconsider msg.sender
-    function GetMyPoolsId(
-        address _UserAddress
-    ) public view returns (uint256[] memory) {
+    function GetMyPoolsId(address _UserAddress)
+        public
+        view
+        returns (uint256[] memory)
+    {
         uint256[] storage allIds = MyPoolz[_UserAddress];
         uint256[] memory ids = new uint256[](allIds.length);
         uint256 index;
@@ -29,14 +32,17 @@ contract LockedPoolzData is LockedControl {
         return Array.KeepNElementsInArray(ids, index);
     }
 
-    function GetPoolsData(
-        uint256[] memory _ids
-    ) public view returns (Pool[] memory) {
-        Pool[] memory data = new Pool[](_ids.length);
+    function GetPoolsData(uint256[] memory _ids)
+        public
+        view
+        returns (Pool[] memory data)
+    {
+        data = new Pool[](_ids.length);
         for (uint256 i = 0; i < _ids.length; i++) {
             require(_ids[i] < Index, "Pool does not exist");
             data[i] = Pool(
                 AllPoolz[_ids[i]].StartTime,
+                AllPoolz[_ids[i]].CliffTime,
                 AllPoolz[_ids[i]].FinishTime,
                 AllPoolz[_ids[i]].StartAmount,
                 AllPoolz[_ids[i]].DebitedAmount,
@@ -44,13 +50,13 @@ contract LockedPoolzData is LockedControl {
                 AllPoolz[_ids[i]].Token
             );
         }
-        return data;
     }
 
-    function GetMyPoolsIdByToken(
-        address _UserAddress,
-        address[] memory _Tokens
-    ) public view returns (uint256[] memory) {
+    function GetMyPoolsIdByToken(address _UserAddress, address[] memory _Tokens)
+        public
+        view
+        returns (uint256[] memory)
+    {
         uint256[] storage allIds = MyPoolz[_UserAddress];
         uint256[] memory ids = new uint256[](allIds.length);
         uint256 index;
@@ -65,7 +71,24 @@ contract LockedPoolzData is LockedControl {
     function GetMyPoolDataByToken(
         address _UserAddress,
         address[] memory _Tokens
-    ) public view returns (Pool[] memory) {
-        return GetPoolsData(GetMyPoolsIdByToken(_UserAddress, _Tokens));
+    ) external view returns (Pool[] memory pools, uint256[] memory poolIds) {
+        poolIds = GetMyPoolsIdByToken(_UserAddress, _Tokens);
+        pools = GetPoolsData(poolIds);
+    }
+
+    function GetMyPoolsData(address _UserAddress)
+        external
+        view
+        returns (Pool[] memory data)
+    {
+        data = GetPoolsData(GetMyPoolsId(_UserAddress));
+    }
+
+    function GetAllMyPoolsData(address _UserAddress)
+        external
+        view
+        returns (Pool[] memory data)
+    {
+        data = GetPoolsData(GetAllMyPoolsId(_UserAddress));
     }
 }

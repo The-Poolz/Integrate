@@ -17,9 +17,10 @@ contract LockedDealModifiers {
 
     struct Pool {
         uint256 StartTime;
+        uint256 CliffTime;
         uint256 FinishTime;
         uint256 StartAmount;
-        uint256 DebitedAmount;
+        uint256 DebitedAmount; // withdrawn amount
         address Owner;
         address Token;
     }
@@ -28,8 +29,14 @@ contract LockedDealModifiers {
         require(_address != address(0x0), "Zero Address is not allowed");
         _;
     }
+
     modifier isPoolValid(uint256 _PoolId) {
         require(_PoolId < Index, "Pool does not exist");
+        _;
+    }
+
+    modifier notZeroValue(uint256 _Amount) {
+        require(_Amount > 0, "Amount must be greater than zero");
         _;
     }
 
@@ -49,21 +56,11 @@ contract LockedDealModifiers {
         _;
     }
 
-    modifier isLocked(uint256 _PoolId) {
-        require(
-            AllPoolz[_PoolId].StartTime > block.timestamp,
-            "Pool is Unlocked"
-        );
-        _;
-    }
-
-    modifier isGreaterThanZero(uint256 _num) {
-        require(_num > 0, "Array length should be greater than zero");
-        _;
-    }
-
     modifier isBelowLimit(uint256 _num) {
-        require(_num <= maxTransactionLimit, "Max array length limit exceeded");
+        require(
+            _num > 0 && _num <= maxTransactionLimit,
+            "Invalid array length limit"
+        );
         _;
     }
 }
