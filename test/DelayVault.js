@@ -1,7 +1,8 @@
+// contracts
 const DelayVault = artifacts.require("DelayVault")
 const LDV2 = artifacts.require("LockedDealV2")
 const TestToken = artifacts.require("ERC20Token")
-
+// helpers
 const constants = require("@openzeppelin/test-helpers/src/constants")
 const { assert } = require("chai")
 const truffleAssert = require("truffle-assertions")
@@ -51,6 +52,32 @@ contract("DelayVault Integration tests", (accounts) => {
         await delayVault.setLockedDealAddress(lockedDealV2.address)
         const lockedDeal = await delayVault.LockedDealAddress()
         assert.equal(lockedDealV2.address, lockedDeal.toString())
+    })
+
+    it("check locked pool data", async () => {
+        // create vault with first limit
+        await delayVault.CreateVault(token.address, firstAmount, week, 0, 0, { from: accounts[1] })
+        // press withdraw button
+        await delayVault.Withdraw(token.address, { from: accounts[1] })
+        let blockNum = await web3.eth.getBlockNumber()
+        let block = await web3.eth.getBlock(blockNum)
+        const myIds = await lockedDealV2.GetMyPoolsId(accounts[1])
+        const data = await lockedDealV2.GetPoolsData([myIds[0]])
+        const startTime = data[0][0]
+        const cliffTime = data[0][1]
+        const finishTime = data[0][2]
+        const startAmount = data[0][3]
+        const debitedAmount = data[0][4]
+        const poolOwner = data[0][5]
+        const tokenAddress = data[0][6]
+        // check locked deal data
+        assert.equal(startTime, parseInt(block["timestamp"]) + week, "check StartTime")
+        assert.equal(cliffTime, parseInt(block["timestamp"]) + week, "check CliffTime")
+        assert.equal(finishTime, parseInt(block["timestamp"]) + week, "check FinishTime")
+        assert.equal(startAmount, firstAmount.toString(), "check Start Amount value")
+        assert.equal(debitedAmount, "0", "check DebitedAmount value")
+        assert.equal(poolOwner, accounts[1].toString(), "check Owner address")
+        assert.equal(tokenAddress, token.address.toString(), "check token address")
     })
 
     it("fail to create vaults with invalid delay limits", async () => {
@@ -112,6 +139,12 @@ contract("DelayVault Integration tests", (accounts) => {
             assert.equal(logs.StartDelay, 0)
             assert.equal(logs.FinishDelay, 0)
             assert.equal(logs.Owner, usersArr[i])
+            // check vault values after withdraw
+            const vaultData = await delayVault.VaultMap(token.address, usersArr[i])
+            assert.equal(vaultData.Amount, "0", "check amount after withdraw")
+            assert.equal(vaultData.StartDelay, "0", "check start delay after withdraw")
+            assert.equal(vaultData.CliffDelay, "0", "check cliff delay after withdraw")
+            assert.equal(vaultData.FinishDelay, "0", "check finish delay after withdraw")
         }
         // check locked Deal V2 pools amounts
         for (let i = 0; i < usersArr.length; i++) {
